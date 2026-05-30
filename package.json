@@ -1,0 +1,12 @@
+{
+  "name": "siak-workspace",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "dev:admin": "npm --prefix frontend run dev",
+    "dev:public": "npm --prefix public run dev",
+    "dev:backend": "cd backend && go run main.go",
+    "build:admin": "npm --prefix frontend run build",
+    "build:public": "npm --prefix public run build"
+  }
+}

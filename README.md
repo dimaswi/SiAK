@@ -47,5 +47,27 @@ SiAK/
 │   └── src/
 │       ├── components/    # UI Components (shadcn + custom)
 │       └── lib/           # Utilities
+├── public/                # Next.js Public Portal (Company + Blog + PPDB)
 └── docker-compose.yml     # PostgreSQL + pgAdmin
 ```
+
+## Menjalankan Multi App (Admin + Public + Backend)
+Dari root project:
+```bash
+npm run dev:admin
+npm run dev:public
+npm run dev:backend
+```
+
+- Admin app: `http://localhost:5173`
+- Public portal: `http://localhost:3000`
+- Backend API: `http://localhost:8080`
+
+## Mapping Domain Produksi (Target)
+- `admin.domain.com` -> aplikasi admin (`frontend`)
+- `domain.com` / `www.domain.com` -> portal publik (`public`)
+- `api.domain.com` -> backend API (`backend`)
+
+## Contoh Reverse Proxy
+- Contoh konfigurasi Nginx tersedia di [deploy/nginx/siak.conf](/e:/SiAK/deploy/nginx/siak.conf)
+- Ubah `server_name` dan target `upstream` sesuai environment produksi Anda.

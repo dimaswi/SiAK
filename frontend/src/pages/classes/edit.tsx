@@ -3,9 +3,7 @@ import { useNavigate, useParams, Link } from "react-router-dom"
 import axios from "axios"
 import { ArrowLeft, Save } from "lucide-react"
 
-import PageShell from "../../components/PageShell"
 import { Button } from "../../components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card"
 import { Input } from "../../components/ui/input"
 import { Label } from "../../components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select"
@@ -92,60 +90,45 @@ export default function ClassEdit() {
   if (isLoading) return <div className="flex h-screen items-center justify-center"><div className="animate-spin h-8 w-8 border-2 border-primary border-t-transparent rounded-full" /></div>
 
   return (
-    <PageShell
-      title="Edit Kelas"
-      description="Perbarui informasi kelas."
-      backButton={
-        <Button variant="outline" size="icon" className="rounded-none shrink-0" asChild>
-          <Link to="/classes"><ArrowLeft className="h-4 w-4" /></Link>
-        </Button>
-      }
-      footer={
-        <>
-          <Button type="button" variant="outline" asChild>
-            <Link to="/classes">Batal</Link>
+    <div className="animate-fade-in flex flex-col flex-1">
+      <div className="px-4 md:px-6 lg:px-8 pt-4 pb-6">
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" size="icon" asChild className="rounded-full bg-white shadow-sm border border-slate-200 h-9 w-9">
+            <Link to="/classes"><ArrowLeft className="w-4 h-4 text-slate-600" /></Link>
           </Button>
-          <Button type="submit" form="class-edit-form" disabled={isSubmitting} className="gap-2 min-w-[140px]">
-            <Save className="h-4 w-4" />
-            {isSubmitting ? "Menyimpan..." : "Simpan Perubahan"}
-          </Button>
-        </>
-      }
-    >
-      <div className="flex flex-col gap-4">
-        <Card className="border bg-card">
-          <CardHeader>
-            <CardTitle className="text-lg">Informasi Kelas</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <form id="class-edit-form" onSubmit={handleUpdate} className="space-y-4">
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight text-slate-900">Edit Kelas</h1>
+            <p className="text-sm text-muted-foreground mt-0.5">Perbarui informasi kelas.</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="px-4 md:px-6 lg:px-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+          <div className="md:col-span-1">
+            <h2 className="text-lg font-semibold text-slate-900">Informasi Kelas</h2>
+            <p className="text-sm text-slate-500 mt-1">Perbarui detail kelas ini.</p>
+          </div>
+          <div className="md:col-span-2 bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+            <form id="class-edit-form" onSubmit={handleUpdate} className="space-y-5">
               <div className="space-y-2">
-                <Label>Nama Kelas</Label>
-                <Input required placeholder="Contoh: X MIPA 1" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} />
+                <Label className="text-slate-700">Nama Kelas <span className="text-red-500">*</span></Label>
+                <Input required placeholder="Contoh: X MIPA 1" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} className="bg-transparent shadow-xs" />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>Tingkat Kelas (Grade)</Label>
+                  <Label className="text-slate-700">Tingkat Kelas</Label>
                   <Select value={formData.grade_level} onValueChange={v => setFormData({ ...formData, grade_level: v })}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="1">Kelas 1 (SD)</SelectItem>
-                      <SelectItem value="2">Kelas 2 (SD)</SelectItem>
-                      <SelectItem value="3">Kelas 3 (SD)</SelectItem>
-                      <SelectItem value="4">Kelas 4 (SD)</SelectItem>
-                      <SelectItem value="5">Kelas 5 (SD)</SelectItem>
-                      <SelectItem value="6">Kelas 6 (SD)</SelectItem>
-                      <SelectItem value="7">Kelas 7 (SMP)</SelectItem>
-                      <SelectItem value="8">Kelas 8 (SMP)</SelectItem>
-                      <SelectItem value="9">Kelas 9 (SMP)</SelectItem>
-                      <SelectItem value="10">Kelas 10 (SMA)</SelectItem>
-                      <SelectItem value="11">Kelas 11 (SMA)</SelectItem>
-                      <SelectItem value="12">Kelas 12 (SMA)</SelectItem>
+                      {[1,2,3,4,5,6,7,8,9,10,11,12].map(n => (
+                        <SelectItem key={n} value={String(n)}>Kelas {n} {n <= 6 ? "(SD)" : n <= 9 ? "(SMP)" : "(SMA)"}</SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label>Tahun Ajaran</Label>
+                  <Label className="text-slate-700">Tahun Ajaran</Label>
                   <Select value={formData.academic_year} onValueChange={v => setFormData({ ...formData, academic_year: v })}>
                     <SelectTrigger><SelectValue placeholder="Pilih Tahun Ajaran" /></SelectTrigger>
                     <SelectContent>
@@ -159,21 +142,27 @@ export default function ClassEdit() {
                 </div>
               </div>
               <div className="space-y-2">
-                <Label>Wali Kelas (Opsional)</Label>
+                <Label className="text-slate-700">Wali Kelas (Opsional)</Label>
                 <Select value={formData.homeroom_teacher_id || "none"} onValueChange={v => setFormData({ ...formData, homeroom_teacher_id: v === "none" ? "" : v })}>
                   <SelectTrigger><SelectValue placeholder="Pilih Wali Kelas" /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="none">Belum Ditentukan</SelectItem>
-                    {teachers.map(t => (
-                      <SelectItem key={t.id} value={t.id}>{t.full_name}</SelectItem>
-                    ))}
+                    {teachers.map(t => <SelectItem key={t.id} value={t.id}>{t.full_name}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>
             </form>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
-    </PageShell>
+
+      <div className="sticky bottom-0 z-50 flex justify-end gap-3 bg-background/95 backdrop-blur border-t p-4 mt-auto shadow-sm">
+        <Button type="button" variant="outline" asChild><Link to="/classes">Batal</Link></Button>
+        <Button type="submit" form="class-edit-form" disabled={isSubmitting} className="min-w-[140px]">
+          <Save className="h-4 w-4 mr-2" />
+          {isSubmitting ? "Menyimpan..." : "Simpan Perubahan"}
+        </Button>
+      </div>
+    </div>
   )
 }

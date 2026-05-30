@@ -20,6 +20,9 @@ import {
   LayoutDashboard,
   Settings,
   School,
+  FileText,
+  ClipboardList,
+  PanelsTopLeft,
 } from "lucide-react"
 import { useAuth } from "../context/AuthContext"
 
@@ -70,7 +73,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           { title: "Manajemen Kelas", url: "/classes", icon: BookOpen },
           { title: "Data Guru", url: "/guru", icon: Users },
           { title: "Data Murid", url: "/siswa", icon: GraduationCap },
+          { title: "PPDB", url: "/ppdb", icon: ClipboardList },
           { title: "Pengguna", url: "/users", icon: Settings },
+        ],
+      },
+      {
+        title: "Portal Publik",
+        items: [
+          { title: "Company Profile", url: "/cms/company", icon: PanelsTopLeft },
+          { title: "Blog", url: "/cms/blog", icon: FileText },
+          { title: "Navigasi Portal", url: "/cms/navigation", icon: BookOpen },
         ],
       },
       {

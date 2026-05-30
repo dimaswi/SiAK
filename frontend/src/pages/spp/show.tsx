@@ -7,7 +7,6 @@ import PageShell from "../../components/PageShell"
 import { useAuth } from "../../context/AuthContext"
 import { Button } from "../../components/ui/button"
 import { Badge } from "../../components/ui/badge"
-import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card"
 import { Input } from "../../components/ui/input"
 import { Label } from "../../components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select"
@@ -181,90 +180,94 @@ export default function SppShow() {
       title="Detail Tagihan SPP"
       description={`${MONTHS[payment.month - 1]} ${payment.year} — ${payment.student_name}`}
       backButton={
-        <Button variant="outline" size="icon" className="rounded-none shrink-0" asChild>
+        <Button variant="ghost" size="icon" className="rounded-full shrink-0" asChild>
           <Link to="/spp"><ArrowLeft className="h-4 w-4" /></Link>
         </Button>
       }
     >
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 pb-12">
         {/* Left: Info Tagihan */}
         <div className="lg:col-span-2 flex flex-col gap-4">
           {/* Status Header */}
-          <Card className="border bg-card">
-            <CardContent className="p-5 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center">
-                  <User className="h-6 w-6 text-muted-foreground" />
-                </div>
-                <div>
-                  <p className="font-semibold">{payment.student_name}</p>
-                  <p className="text-xs text-muted-foreground font-mono">NIS: {payment.student_nis}</p>
-                  <p className="text-xs text-muted-foreground">{payment.class_name || "Tanpa Kelas"}</p>
-                </div>
+          <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden p-5 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="h-12 w-12 rounded-full bg-slate-100 flex items-center justify-center">
+                <User className="h-6 w-6 text-slate-500" />
               </div>
-              <div className="text-right">
-                <Badge variant={sc.variant} className="mb-1">{sc.label}</Badge>
-                <p className="text-xs text-muted-foreground">Tahun Ajaran {payment.academic_year}</p>
+              <div>
+                <p className="font-semibold text-slate-800">{payment.student_name}</p>
+                <p className="text-xs text-slate-400 font-mono">NIS: {payment.student_nis}</p>
+                <p className="text-xs text-slate-500">{payment.class_name || "Tanpa Kelas"}</p>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+            <div className="text-right">
+              <Badge variant={sc.variant} className="mb-1">{sc.label}</Badge>
+              <p className="text-xs text-slate-400">Tahun Ajaran {payment.academic_year}</p>
+            </div>
+          </div>
 
           {/* Rincian Tagihan */}
-          <Card className="border bg-card">
-            <CardHeader className="pb-3"><CardTitle className="text-sm font-medium">Rincian Tagihan</CardTitle></CardHeader>
-            <CardContent className="grid grid-cols-2 gap-4">
+          <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+            <div className="bg-slate-50 border-b border-slate-200 px-4 py-3">
+              <h4 className="text-sm font-semibold text-slate-800">Rincian Tagihan</h4>
+            </div>
+            <div className="p-4 grid grid-cols-2 gap-4">
               <InfoRow label="Periode" value={`${MONTHS[payment.month - 1]} ${payment.year}`} />
               <InfoRow label="Jatuh Tempo" value={formatDate(payment.due_date)} />
               <InfoRow label="Nominal SPP" value={formatRp(payment.amount)} />
               <InfoRow label="Denda Keterlambatan" value={payment.late_fee > 0 ? formatRp(payment.late_fee) : "—"} />
               <InfoRow label="Potongan / Diskon" value={payment.discount > 0 ? formatRp(payment.discount) : "—"} />
               <div>
-                <p className="text-xs text-muted-foreground">Total Tagihan</p>
-                <p className="text-lg font-bold text-foreground">{formatRp(payment.total_amount)}</p>
+                <p className="text-xs text-slate-500">Total Tagihan</p>
+                <p className="text-lg font-bold text-slate-900">{formatRp(payment.total_amount)}</p>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
 
           {/* Info Pembayaran */}
           {(payment.payment_date || payment.transaction_id || payment.payment_proof_url) && (
-            <Card className="border bg-card">
-              <CardHeader className="pb-3"><CardTitle className="text-sm font-medium">Informasi Pembayaran</CardTitle></CardHeader>
-              <CardContent className="grid grid-cols-2 gap-4">
+            <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+              <div className="bg-slate-50 border-b border-slate-200 px-4 py-3">
+                <h4 className="text-sm font-semibold text-slate-800">Informasi Pembayaran</h4>
+              </div>
+              <div className="p-4 grid grid-cols-2 gap-4">
                 <InfoRow label="Tanggal Bayar" value={formatDate(payment.payment_date)} />
                 <InfoRow label="Bank" value={payment.bank_name} />
                 <InfoRow label="Atas Nama" value={payment.account_holder} />
                 <InfoRow label="No. Transaksi" value={payment.transaction_id} />
                 {payment.payment_proof_url && (
                   <div className="col-span-2">
-                    <p className="text-xs text-muted-foreground mb-1">Bukti Transfer</p>
+                    <p className="text-xs text-slate-500 mb-1">Bukti Transfer</p>
                     <a href={`${API_BASE}${payment.payment_proof_url}`} target="_blank" rel="noopener noreferrer"
-                      className="text-sm text-primary underline hover:no-underline">
+                      className="text-sm text-primary underline hover:no-underline font-medium">
                       Lihat Bukti Transfer ↗
                     </a>
                     {/\.(jpg|jpeg|png|webp)$/i.test(payment.payment_proof_url) ? (
                       <button
                         type="button"
-                        className="mt-3 block"
+                        className="mt-3 block transition-transform hover:scale-[1.01]"
                         onClick={() => setIsProofPreviewOpen(true)}
                       >
                         <img
                           src={`${API_BASE}${payment.payment_proof_url}`}
                           alt="Bukti transfer"
-                          className="max-h-72 w-auto rounded-md border object-contain"
+                          className="max-h-72 w-auto rounded-md border border-slate-200 object-contain shadow-sm"
                         />
                       </button>
                     ) : null}
                   </div>
                 )}
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           )}
 
           {/* Input Rincian & Upload Bukti (Only for Student) */}
           {isStudent && (payment.status === "belum_bayar" || payment.status === "pending_verifikasi") ? (
-            <Card className="border bg-card">
-              <CardHeader className="pb-3"><CardTitle className="text-sm font-medium">Rincian Pembayaran</CardTitle></CardHeader>
-              <CardContent className="space-y-3">
+            <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+              <div className="bg-slate-50 border-b border-slate-200 px-4 py-3">
+                <h4 className="text-sm font-semibold text-slate-800">Rincian Pembayaran</h4>
+              </div>
+              <div className="p-4 space-y-3">
                 <form onSubmit={handleSaveStudentPaymentDetail} className="space-y-3">
                   <div className="space-y-1.5">
                     <Label className="text-xs">Tanggal Bayar</Label>
@@ -311,7 +314,7 @@ export default function SppShow() {
                   </Button>
                 </form>
 
-                <div className="pt-2 border-t">
+                <div className="pt-3 mt-1 border-t border-slate-100">
                   <Label className="text-xs mb-2 block">Upload Bukti Transfer</Label>
                   <div className="flex items-center gap-3">
                     <Input type="file" accept=".jpg,.jpeg,.png,.pdf" onChange={e => setProofFile(e.target.files?.[0] || null)} className="flex-1" />
@@ -320,8 +323,8 @@ export default function SppShow() {
                     </Button>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           ) : null}
         </div>
 
@@ -329,21 +332,25 @@ export default function SppShow() {
         <div className="flex flex-col gap-4">
           {/* Status History */}
           {payment.verified_at && (
-            <Card className="border bg-card">
-              <CardHeader className="pb-3"><CardTitle className="text-sm font-medium">Riwayat Verifikasi</CardTitle></CardHeader>
-              <CardContent className="space-y-2">
+            <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+              <div className="bg-slate-50 border-b border-slate-200 px-4 py-3">
+                <h4 className="text-sm font-semibold text-slate-800">Riwayat Verifikasi</h4>
+              </div>
+              <div className="p-4 space-y-2">
                 <InfoRow label="Diverifikasi" value={formatDate(payment.verified_at)} />
                 {payment.paid_at && <InfoRow label="Dilunaskan" value={formatDate(payment.paid_at)} />}
                 {payment.notes && <InfoRow label="Catatan" value={payment.notes} />}
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           )}
 
           {/* Form Verifikasi (Only Admin/Teacher) */}
           {isAdminOrTeacher && payment.status !== "lunas" && payment.status !== "bebas_spp" && (
-            <Card className="border bg-card">
-              <CardHeader className="pb-3"><CardTitle className="text-sm font-medium">Verifikasi / Terima Tunai</CardTitle></CardHeader>
-              <CardContent>
+            <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+              <div className="bg-slate-50 border-b border-slate-200 px-4 py-3">
+                <h4 className="text-sm font-semibold text-slate-800">Verifikasi / Terima Tunai</h4>
+              </div>
+              <div className="p-4">
                 <form onSubmit={handleVerify} className="flex flex-col gap-3">
                   <div className="space-y-1.5">
                     <Label className="text-xs">Update Status</Label>
@@ -366,16 +373,16 @@ export default function SppShow() {
                     {isVerifying ? "Menyimpan..." : "Simpan Status Pembayaran"}
                   </Button>
                 </form>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           )}
 
           {isAdminOrTeacher && (
-            <Card className="border bg-card">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium">Penyesuaian Tagihan Siswa</CardTitle>
-              </CardHeader>
-              <CardContent>
+            <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+              <div className="bg-slate-50 border-b border-slate-200 px-4 py-3">
+                <h4 className="text-sm font-semibold text-slate-800">Penyesuaian Tagihan Siswa</h4>
+              </div>
+              <div className="p-4">
                 <form onSubmit={handleSaveAdminAdjust} className="flex flex-col gap-3">
                   <div className="space-y-1.5">
                     <Label className="text-xs">Jatuh Tempo (Manual)</Label>
@@ -413,24 +420,24 @@ export default function SppShow() {
                       onChange={(e) => setAdminAdjustForm((prev) => ({ ...prev, notes: e.target.value }))}
                     />
                   </div>
-                  <Button type="submit" size="sm" disabled={isSavingAdminAdjust}>
+                  <Button type="submit" size="sm" disabled={isSavingAdminAdjust} className="w-full">
                     {isSavingAdminAdjust ? "Menyimpan..." : "Simpan Penyesuaian"}
                   </Button>
                 </form>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           )}
 
           {/* Link to student (Only Admin/Teacher) */}
           {isAdminOrTeacher && (
-            <>
-              <Button variant="outline" size="sm" asChild>
-                <Link to={`/siswa/${payment.student_id}`}>← Lihat Profil Siswa</Link>
+            <div className="flex flex-col gap-2">
+              <Button variant="outline" size="sm" className="w-full justify-start text-xs h-9 bg-white border-slate-200 text-slate-600 hover:bg-slate-50" asChild>
+                <Link to={`/students/${payment.student_id}`}>← Lihat Profil Siswa</Link>
               </Button>
-              <Button variant="outline" size="sm" asChild>
+              <Button variant="outline" size="sm" className="w-full justify-start text-xs h-9 bg-white border-slate-200 text-slate-600 hover:bg-slate-50" asChild>
                 <Link to={`/spp?student_id=${payment.student_id}`}>Riwayat SPP Siswa Ini</Link>
               </Button>
-            </>
+            </div>
           )}
         </div>
       </div>

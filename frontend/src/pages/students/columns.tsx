@@ -72,20 +72,20 @@ export const columns: ColumnDef<Student>[] = [
       const student = row.original
       return (
         <div className="flex items-center justify-end gap-1">
-          <Button asChild variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary">
+          <Button asChild variant="outline" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary">
             <Link to={`/siswa/${student.id}`}>
               <Eye className="h-4 w-4" />
               <span className="sr-only">Lihat Detail</span>
             </Link>
           </Button>
-          <Button asChild variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary">
+          <Button asChild variant="outline" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary">
             <Link to={`/siswa/${student.id}/edit`}>
-              <Pencil className="h-4 w-4" />
+              <Pencil className="h-4 w-4 text-yellow-600" />
               <span className="sr-only">Edit Data</span>
             </Link>
           </Button>
-          <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive">
-            <Trash2 className="h-4 w-4" />
+          <Button variant="outline" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive">
+            <Trash2 className="h-4 w-4 text-red-600" />
             <span className="sr-only">Hapus Data</span>
           </Button>
         </div>

@@ -5,7 +5,6 @@ import { Plus, RefreshCw, CheckCircle2, Clock, XCircle, CreditCard, AlertCircle 
 
 import PageShell from "../../components/PageShell"
 import { Button } from "../../components/ui/button"
-import { Card, CardContent } from "../../components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select"
 import { DataTable } from "../../components/DataTable"
 import { sppPaymentColumns, type SppPayment } from "./columns"
@@ -42,13 +41,13 @@ export default function SppIndex() {
   const isStudent = user?.role === "siswa"
 
   const [data, setData] = useState<SppPayment[]>([])
-  
+
   // Global Stats (Admin/Teacher)
   const [stats, setStats] = useState<Stats>({ lunas: 0, pending: 0, belum_bayar: 0, total_collected: 0 })
-  
+
   // Student Specific Stats
   const [studentSummary, setStudentSummary] = useState<StudentSummary | null>(null)
-  
+
   const [isLoading, setIsLoading] = useState(true)
   const [isGenerating, setIsGenerating] = useState(false)
   const [search, setSearch] = useState("")
@@ -58,7 +57,7 @@ export default function SppIndex() {
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
   const [totalItems, setTotalItems] = useState(0)
-  const limit = 15
+  const limit = 10
 
   const fetchData = async (currentPage = page) => {
     setIsLoading(true)
@@ -95,20 +94,27 @@ export default function SppIndex() {
     }
   }
 
-  useEffect(() => { fetchData(page) }, [page, isStudent])
-
-  // Re-fetch from page 1 when filters change (Only for Admin/Teacher)
   useEffect(() => {
-    if (!isStudent) {
-      setPage(1)
-      fetchData(1)
-    }
-  }, [filterStatus, filterMonth, filterYear])
+    const timer = setTimeout(() => {
+      fetchData(page)
+    }, 300)
+    return () => clearTimeout(timer)
+  }, [page, isStudent, search, filterStatus, filterMonth, filterYear])
 
   const handleSearchChange = (value: string) => {
     setSearch(value)
     if (!isStudent) setPage(1)
   }
+
+  // Local filtering for students
+  const displayData = isStudent && search
+    ? data.filter(item => {
+      const monthName = MONTHS[item.month - 1].toLowerCase()
+      const year = String(item.year)
+      const q = search.toLowerCase()
+      return monthName.includes(q) || year.includes(q)
+    })
+    : data
 
   const handleGenerate = async () => {
     const m = Number(filterMonth)
@@ -209,96 +215,82 @@ export default function SppIndex() {
       }
     >
       <div className="flex flex-col gap-4">
-        {/* Stats Cards */}
         {isStudent && studentSummary ? (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-             <Card className="border bg-card">
-              <CardContent className="p-4 flex items-center gap-3">
-                <div className="h-9 w-9 rounded-lg bg-red-500/10 flex items-center justify-center shrink-0">
-                  <AlertCircle className="h-4 w-4 text-red-600" />
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground">Total Tunggakan</p>
-                  <p className="text-lg font-bold text-red-600">{formatRp(studentSummary.arrears)}</p>
-                </div>
-              </CardContent>
-            </Card>
-            <Card className="border bg-card">
-              <CardContent className="p-4 flex items-center gap-3">
-                <div className="h-9 w-9 rounded-lg bg-yellow-500/10 flex items-center justify-center shrink-0">
-                  <Clock className="h-4 w-4 text-yellow-600" />
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground">Belum Lunas</p>
-                  <p className="text-lg font-bold">{studentSummary.unpaid_count} Bulan</p>
-                </div>
-              </CardContent>
-            </Card>
-            <Card className="border bg-card">
-              <CardContent className="p-4 flex items-center gap-3">
-                <div className="h-9 w-9 rounded-lg bg-green-500/10 flex items-center justify-center shrink-0">
-                  <CheckCircle2 className="h-4 w-4 text-green-600" />
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground">Sudah Lunas</p>
-                  <p className="text-lg font-bold">{studentSummary.paid_count} Bulan</p>
-                </div>
-              </CardContent>
-            </Card>
+            <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4 flex items-center gap-3">
+              <div className="h-9 w-9 rounded-full bg-red-500/10 flex items-center justify-center shrink-0">
+                <AlertCircle className="h-4 w-4 text-red-600" />
+              </div>
+              <div>
+                <p className="text-xs text-slate-500">Total Tunggakan</p>
+                <p className="text-lg font-bold text-red-600">{formatRp(studentSummary.arrears)}</p>
+              </div>
+            </div>
+            <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4 flex items-center gap-3">
+              <div className="h-9 w-9 rounded-full bg-amber-500/10 flex items-center justify-center shrink-0">
+                <Clock className="h-4 w-4 text-amber-600" />
+              </div>
+              <div>
+                <p className="text-xs text-slate-500">Belum Lunas</p>
+                <p className="text-lg font-bold text-slate-800">{studentSummary.unpaid_count} Bulan</p>
+              </div>
+            </div>
+            <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4 flex items-center gap-3">
+              <div className="h-9 w-9 rounded-full bg-emerald-500/10 flex items-center justify-center shrink-0">
+                <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+              </div>
+              <div>
+                <p className="text-xs text-slate-500">Sudah Lunas</p>
+                <p className="text-lg font-bold text-slate-800">{studentSummary.paid_count} Bulan</p>
+              </div>
+            </div>
           </div>
         ) : !isStudent ? (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <Card className="border bg-card">
-              <CardContent className="p-4 flex items-center gap-3">
-                <div className="h-9 w-9 rounded-lg bg-green-500/10 flex items-center justify-center shrink-0">
-                  <CheckCircle2 className="h-4 w-4 text-green-600" />
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground">Lunas</p>
-                  <p className="text-lg font-bold">{stats.lunas}</p>
-                </div>
-              </CardContent>
-            </Card>
-            <Card className="border bg-card">
-              <CardContent className="p-4 flex items-center gap-3">
-                <div className="h-9 w-9 rounded-lg bg-yellow-500/10 flex items-center justify-center shrink-0">
-                  <Clock className="h-4 w-4 text-yellow-600" />
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground">Menunggu Verifikasi</p>
-                  <p className="text-lg font-bold">{stats.pending}</p>
-                </div>
-              </CardContent>
-            </Card>
-            <Card className="border bg-card">
-              <CardContent className="p-4 flex items-center gap-3">
-                <div className="h-9 w-9 rounded-lg bg-red-500/10 flex items-center justify-center shrink-0">
-                  <XCircle className="h-4 w-4 text-red-600" />
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground">Belum Bayar</p>
-                  <p className="text-lg font-bold">{stats.belum_bayar}</p>
-                </div>
-              </CardContent>
-            </Card>
-            <Card className="border bg-card">
-              <CardContent className="p-4 flex items-center gap-3">
-                <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                  <CreditCard className="h-4 w-4 text-primary" />
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground">Total Terkumpul</p>
-                  <p className="text-sm font-bold">{formatRp(stats.total_collected)}</p>
-                </div>
-              </CardContent>
-            </Card>
+            <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4 flex items-center gap-3">
+              <div className="h-9 w-9 rounded-full bg-emerald-500/10 flex items-center justify-center shrink-0">
+                <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+              </div>
+              <div>
+                <p className="text-xs text-slate-500">Lunas</p>
+                <p className="text-lg font-bold text-slate-800">{stats.lunas}</p>
+              </div>
+            </div>
+            <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4 flex items-center gap-3">
+              <div className="h-9 w-9 rounded-full bg-amber-500/10 flex items-center justify-center shrink-0">
+                <Clock className="h-4 w-4 text-amber-600" />
+              </div>
+              <div>
+                <p className="text-xs text-slate-500">Menunggu Verifikasi</p>
+                <p className="text-lg font-bold text-slate-800">{stats.pending}</p>
+              </div>
+            </div>
+            <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4 flex items-center gap-3">
+              <div className="h-9 w-9 rounded-full bg-red-500/10 flex items-center justify-center shrink-0">
+                <XCircle className="h-4 w-4 text-red-600" />
+              </div>
+              <div>
+                <p className="text-xs text-slate-500">Belum Bayar</p>
+                <p className="text-lg font-bold text-slate-800">{stats.belum_bayar}</p>
+              </div>
+            </div>
+            <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4 flex items-center gap-3">
+              <div className="h-9 w-9 rounded-full bg-indigo-500/10 flex items-center justify-center shrink-0">
+                <CreditCard className="h-4 w-4 text-indigo-600" />
+              </div>
+              <div>
+                <p className="text-xs text-slate-500">Total Terkumpul</p>
+                <p className="text-sm font-bold text-slate-800">{formatRp(stats.total_collected)}</p>
+              </div>
+            </div>
           </div>
         ) : null}
 
         {/* DataTable */}
         <DataTable
           columns={sppPaymentColumns}
-          data={data}
+          data={displayData}
+          pageSize={10}
           isLoading={isLoading}
           pageCount={isStudent ? 1 : totalPages} // Students see all their bills without pagination
           pageIndex={isStudent ? 1 : page}

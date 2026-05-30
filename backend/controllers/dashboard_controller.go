@@ -10,10 +10,10 @@ import (
 )
 
 type DashboardStats struct {
-	TotalStudents       int `json:"total_students"`
-	TotalTeachers       int `json:"total_teachers"`
-	TotalSPPMonth       int `json:"total_spp_month"` // Dalam Rupiah
-	PendingVerification int `json:"pending_verification"`
+	TotalStudents       int    `json:"total_students"`
+	TotalTeachers       int    `json:"total_teachers"`
+	TotalSPPMonth       int    `json:"total_spp_month"` // Dalam Rupiah
+	PendingVerification int    `json:"pending_verification"`
 	DisplayName         string `json:"display_name"`
 }
 
@@ -57,7 +57,7 @@ func GetDashboardStats(c echo.Context) error {
 	now := time.Now()
 	currentMonth := int(now.Month())
 	currentYear := now.Year()
-	
+
 	// Gunakan COALESCE untuk mencegah NULL jika belum ada pembayaran
 	sppQuery := `
 		SELECT COALESCE(SUM(p.amount + p.late_fee - p.discount), 0)

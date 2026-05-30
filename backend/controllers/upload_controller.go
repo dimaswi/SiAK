@@ -12,6 +12,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"siak/backend/database"
+	"siak/backend/middlewares"
 )
 
 const uploadDir = "./uploads"
@@ -103,10 +104,10 @@ func UploadPhoto(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"message":   "Foto berhasil diupload",
-		"photo_url": publicURL,
-		"file_name": file.Filename,
-		"file_size": file.Size,
+		"message":     "Foto berhasil diupload",
+		"photo_url":   publicURL,
+		"file_name":   file.Filename,
+		"file_size":   file.Size,
 		"uploaded_at": time.Now().Format(time.RFC3339),
 	})
 }
@@ -170,7 +171,148 @@ func UploadPaymentProof(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"message":         "Bukti pembayaran berhasil diupload",
+		"message":           "Bukti pembayaran berhasil diupload",
 		"payment_proof_url": publicURL,
+	})
+}
+
+// UploadCMSImage uploads image for CMS content (blog cover/inline content)
+// POST /api/upload/cms-image
+func UploadCMSImage(c echo.Context) error {
+	file, err := c.FormFile("image")
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{"message": "File gambar tidak ditemukan"})
+	}
+
+	allowedTypes := map[string]bool{
+		".jpg": true, ".jpeg": true, ".png": true, ".webp": true,
+	}
+	ext := strings.ToLower(filepath.Ext(file.Filename))
+	if !allowedTypes[ext] {
+		return c.JSON(http.StatusBadRequest, map[string]string{"message": "Tipe file tidak didukung. Gunakan JPG, PNG, atau WebP"})
+	}
+	if file.Size > 5*1024*1024 {
+		return c.JSON(http.StatusBadRequest, map[string]string{"message": "Ukuran file maksimal 5MB"})
+	}
+
+	cmsDir := filepath.Join(uploadDir, "cms")
+	if err := os.MkdirAll(cmsDir, 0755); err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": "Gagal membuat direktori upload CMS"})
+	}
+
+	storedName := fmt.Sprintf("%s_%s%s", time.Now().Format("20060102150405"), uuid.New().String()[:8], ext)
+	filePath := filepath.Join(cmsDir, storedName)
+	publicURL := fmt.Sprintf("/uploads/cms/%s", storedName)
+
+	src, err := file.Open()
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": "Gagal membuka file"})
+	}
+	defer src.Close()
+
+	dst, err := os.Create(filePath)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": "Gagal menyimpan file"})
+	}
+	defer dst.Close()
+
+	if _, err = io.Copy(dst, src); err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": "Gagal menulis file"})
+	}
+
+	userID := ""
+	if claims, ok := c.Get("user").(*middlewares.JwtCustomClaims); ok && claims != nil {
+		userID = claims.ID
+	}
+	_, _ = database.DB.Exec(`
+		INSERT INTO uploaded_files (file_name, stored_name, file_path, file_type, file_size, entity_type, uploaded_by)
+		VALUES ($1, $2, $3, $4, $5, 'cms', NULLIF($6,'')::UUID)
+	`, file.Filename, storedName, publicURL, file.Header.Get("Content-Type"), file.Size, userID)
+
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"message":   "Gambar CMS berhasil diupload",
+		"image_url": publicURL,
+		"file_name": file.Filename,
+		"file_size": file.Size,
+	})
+}
+
+func GetCMSMediaLibrary(c echo.Context) error {
+	rows, err := database.DB.Query(`
+		SELECT id, file_name, file_path, COALESCE(file_type, ''), COALESCE(file_size, 0), CAST(created_at AS VARCHAR)
+		FROM uploaded_files
+		WHERE entity_type = 'cms'
+		ORDER BY created_at DESC
+		LIMIT 200
+	`)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": "Gagal mengambil media library"})
+	}
+	defer rows.Close()
+
+	items := []map[string]interface{}{}
+	for rows.Next() {
+		var id, fileName, filePath, fileType, createdAt string
+		var fileSize int64
+		if err := rows.Scan(&id, &fileName, &filePath, &fileType, &fileSize, &createdAt); err != nil {
+			return c.JSON(http.StatusInternalServerError, map[string]string{"message": "Gagal membaca media library"})
+		}
+		items = append(items, map[string]interface{}{
+			"id":         id,
+			"file_name":  fileName,
+			"file_path":  filePath,
+			"file_type":  fileType,
+			"file_size":  fileSize,
+			"created_at": createdAt,
+		})
+	}
+	return c.JSON(http.StatusOK, items)
+}
+
+// PublicUploadPPDBDocument uploads required documents for PPDB
+// POST /api/public/ppdb/upload
+func PublicUploadPPDBDocument(c echo.Context) error {
+	file, err := c.FormFile("document")
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{"message": "File dokumen tidak ditemukan dalam request"})
+	}
+
+	allowedTypes := map[string]bool{
+		".jpg": true, ".jpeg": true, ".png": true, ".pdf": true,
+	}
+	ext := strings.ToLower(filepath.Ext(file.Filename))
+	if !allowedTypes[ext] {
+		return c.JSON(http.StatusBadRequest, map[string]string{"message": "Tipe file tidak didukung. Gunakan JPG, PNG, atau PDF"})
+	}
+
+	if file.Size > 5*1024*1024 {
+		return c.JSON(http.StatusBadRequest, map[string]string{"message": "Ukuran file maksimal 5MB"})
+	}
+
+	ppdbDir := filepath.Join(uploadDir, "ppdb")
+	if err := os.MkdirAll(ppdbDir, 0755); err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": "Gagal membuat direktori upload PPDB"})
+	}
+
+	storedName := fmt.Sprintf("ppdb_%s_%s%s", time.Now().Format("20060102150405"), uuid.New().String()[:6], ext)
+	filePath := filepath.Join(ppdbDir, storedName)
+	publicURL := fmt.Sprintf("/uploads/ppdb/%s", storedName)
+
+	src, err := file.Open()
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": "Gagal membuka file"})
+	}
+	defer src.Close()
+
+	dst, err := os.Create(filePath)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": "Gagal menyimpan file"})
+	}
+	defer dst.Close()
+	io.Copy(dst, src)
+
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"message":      "Dokumen berhasil diupload",
+		"document_url": publicURL,
 	})
 }

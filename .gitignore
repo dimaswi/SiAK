@@ -1,0 +1,83 @@
+# =========================
+# Operating System Files
+# =========================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# =========================
+# IDEs and Editors
+# =========================
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.vs/
+
+# =========================
+# Frontend (Node.js / React)
+# =========================
+frontend/node_modules/
+frontend/dist/
+frontend/build/
+frontend/.env
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.test.local
+frontend/.env.production.local
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+frontend/.eslintcache
+
+# =========================
+# Backend (Go)
+# =========================
+backend/backend.exe
+backend/backend
+backend/tmp_server
+backend/tmp_server.exe
+backend/uploads/
+backend/public/
+backend/.env
+backend/vendor/
+*.exe
+*.test
+*.prof
+
+# =========================
+# Logs and Databases
+# =========================
+*.log
+*.sqlite
+*.sqlite3
+backend/database/data/
+
+# =========================
+# Misc
+# =========================
+coverage/
+.nyc_output/
+
+# =========================
+# Public Site (Next.js)
+# =========================
+public/.next/
+public/out/
+public/build/
+public/node_modules/
+public/.env
+public/.env.local
+public/.env.development.local
+public/.env.test.local
+public/.env.production.local
+public/npm-debug.log*
+public/yarn-debug.log*
+public/yarn-error.log*
+public/.eslintcache

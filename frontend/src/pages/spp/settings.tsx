@@ -7,7 +7,6 @@ import PageShell from "../../components/PageShell"
 import { Button } from "../../components/ui/button"
 import { Input } from "../../components/ui/input"
 import { Label } from "../../components/ui/label"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../../components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select"
 import { DataTable } from "../../components/DataTable"
 import { buildSppSettingColumns, type SppSetting } from "./columns"
@@ -123,21 +122,21 @@ export default function SppSettings() {
     <PageShell
       title="Setting Nominal SPP"
       description="Konfigurasi nominal SPP per tahun ajaran dan tingkat kelas."
-      backButton={<Button variant="outline" size="icon" className="rounded-none shrink-0" asChild><Link to="/spp"><ArrowLeft className="h-4 w-4" /></Link></Button>}
+      backButton={
+        <Button variant="ghost" size="icon" asChild className="rounded-full bg-white shadow-sm border border-slate-200 h-9 w-9">
+          <Link to="/spp"><ArrowLeft className="w-4 h-4 text-slate-600" /></Link>
+        </Button>
+      }
     >
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
         {/* ── Form Tambah ─────────────────────────────── */}
-        <Card className="border bg-card lg:col-span-1">
-          <CardHeader className="pb-4">
-            <CardTitle className="text-base font-medium flex items-center gap-2">
-              <Settings className="h-4 w-4" /> Tambah Setting Baru
-            </CardTitle>
-            <CardDescription>
-              Biarkan "Tingkat Kelas" pada "Semua Kelas" jika nominal berlaku untuk semua tingkat.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
+        <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden lg:col-span-1">
+          <div className="bg-slate-50 border-b px-5 py-3 flex items-center gap-2">
+            <Settings className="h-4 w-4 text-slate-500" />
+            <h3 className="text-sm font-semibold text-slate-800">Tambah Setting Baru</h3>
+          </div>
+          <div className="p-5">
             {error && (
               <div className="rounded border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive mb-3">
                 {error}
@@ -252,8 +251,8 @@ export default function SppSettings() {
                 {isSaving ? "Menyimpan..." : "Simpan Setting"}
               </Button>
             </form>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
         {/* ── DataTable Setting ─────────────────────── */}
         <div className="lg:col-span-2 flex flex-col gap-2">

@@ -23,27 +23,33 @@ const formatRp = (value: number) =>
     minimumFractionDigits: 0,
   }).format(value)
 
-function KpiCell({
+function KpiCard({
   label,
   value,
   hint,
   icon: Icon,
+  iconBg,
+  iconColor,
 }: {
   label: string
   value: string
   hint: string
   icon: React.ComponentType<{ className?: string }>
+  iconBg: string
+  iconColor: string
 }) {
   return (
-    <div className="border-r last:border-r-0 p-4">
-      <div className="flex items-start justify-between gap-2">
+    <div className="bg-card rounded-xl border shadow-sm p-5 flex flex-col justify-between h-[120px]">
+      <div className="flex justify-between items-start">
         <div>
-          <p className="text-[11px] uppercase tracking-wide text-muted-foreground">{label}</p>
-          <p className="mt-1 text-2xl font-semibold leading-none">{value}</p>
-          <p className="mt-2 text-xs text-muted-foreground">{hint}</p>
+          <p className="text-sm font-medium text-muted-foreground mb-1">{label}</p>
+          <h3 className="text-3xl font-bold">{value}</h3>
         </div>
-        <Icon className="h-4 w-4 text-muted-foreground mt-1" />
+        <div className={`w-10 h-10 rounded-full ${iconBg} flex items-center justify-center`}>
+          <Icon className={`w-5 h-5 ${iconColor}`} />
+        </div>
       </div>
+      <p className="text-xs text-muted-foreground">{hint}</p>
     </div>
   )
 }
@@ -100,61 +106,70 @@ export default function Dashboard() {
 
   return (
     <PageShell title="Dashboard" description="Ringkasan operasional sekolah hari ini.">
-      <div className="space-y-4">
-        <section className="border bg-background">
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b px-4 py-3">
-            <div>
-              <p className="text-xs uppercase tracking-wide text-muted-foreground">Operator</p>
-              <p className="text-lg font-semibold leading-tight">{displayName}</p>
-            </div>
-            <Badge variant="outline">{roleLabel}</Badge>
+      <div className="space-y-6">
+        {/* Operator Info */}
+        <div className="bg-card rounded-xl border shadow-sm px-5 py-4 flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p className="text-xs uppercase tracking-wide text-muted-foreground">Operator</p>
+            <p className="text-lg font-semibold leading-tight">{displayName}</p>
           </div>
+          <Badge variant="outline">{roleLabel}</Badge>
+        </div>
 
-          {isLoading ? (
-            <div className={`grid ${isGuru ? "md:grid-cols-3" : "md:grid-cols-4"}`}>
-              {Array.from({ length: isGuru ? 3 : 4 }).map((_, i) => (
-                <div key={i} className="border-r last:border-r-0 p-4">
-                  <Skeleton className="h-3 w-24" />
-                  <Skeleton className="mt-2 h-7 w-20" />
-                  <Skeleton className="mt-2 h-3 w-28" />
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className={`grid ${isGuru ? "md:grid-cols-3" : "md:grid-cols-4"}`}>
-              <KpiCell
-                label="Murid Aktif"
-                value={stats.total_students.toLocaleString("id-ID")}
-                hint={isGuru ? "Di kelas yang Anda pegang" : "Seluruh siswa aktif"}
-                icon={GraduationCap}
+        {/* KPI Cards */}
+        {isLoading ? (
+          <div className={`grid gap-4 ${isGuru ? "sm:grid-cols-3" : "sm:grid-cols-2 lg:grid-cols-4"}`}>
+            {Array.from({ length: isGuru ? 3 : 4 }).map((_, i) => (
+              <div key={i} className="bg-card rounded-xl border shadow-sm p-5 h-[120px] space-y-3">
+                <Skeleton className="h-3 w-24" />
+                <Skeleton className="h-7 w-20" />
+                <Skeleton className="h-3 w-28" />
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className={`grid gap-4 ${isGuru ? "sm:grid-cols-3" : "sm:grid-cols-2 lg:grid-cols-4"}`}>
+            <KpiCard
+              label="Murid Aktif"
+              value={stats.total_students.toLocaleString("id-ID")}
+              hint={isGuru ? "Di kelas yang Anda pegang" : "Seluruh siswa aktif"}
+              icon={GraduationCap}
+              iconBg="bg-blue-100"
+              iconColor="text-blue-600"
+            />
+            {!isGuru && (
+              <KpiCard
+                label="Guru Aktif"
+                value={stats.total_teachers.toLocaleString("id-ID")}
+                hint="Guru aktif mengajar"
+                icon={Users}
+                iconBg="bg-purple-100"
+                iconColor="text-purple-600"
               />
-              {!isGuru && (
-                <KpiCell
-                  label="Guru Aktif"
-                  value={stats.total_teachers.toLocaleString("id-ID")}
-                  hint="Guru aktif mengajar"
-                  icon={Users}
-                />
-              )}
-              <KpiCell
-                label="SPP Bulan Ini"
-                value={formatRp(stats.total_spp_month)}
-                hint="Akumulasi pembayaran lunas"
-                icon={CreditCard}
-              />
-              <KpiCell
-                label="Pending Verifikasi"
-                value={stats.pending_verification.toString()}
-                hint="Bukti transfer menunggu review"
-                icon={Clock3}
-              />
-            </div>
-          )}
-        </section>
+            )}
+            <KpiCard
+              label="SPP Bulan Ini"
+              value={formatRp(stats.total_spp_month)}
+              hint="Akumulasi pembayaran lunas"
+              icon={CreditCard}
+              iconBg="bg-teal-100"
+              iconColor="text-teal-600"
+            />
+            <KpiCard
+              label="Pending Verifikasi"
+              value={stats.pending_verification.toString()}
+              hint="Bukti transfer menunggu review"
+              icon={Clock3}
+              iconBg="bg-amber-100"
+              iconColor="text-amber-600"
+            />
+          </div>
+        )}
 
-        <section className="grid gap-4 lg:grid-cols-[1.5fr_1fr]">
-          <div className="border bg-background">
-            <div className="border-b px-4 py-3">
+        {/* Quick Access + Status */}
+        <div className="grid gap-4 lg:grid-cols-[1.5fr_1fr]">
+          <div className="bg-card rounded-xl border shadow-sm">
+            <div className="border-b px-5 py-3">
               <h3 className="text-sm font-semibold">Akses Cepat</h3>
             </div>
             <div className="divide-y">
@@ -162,38 +177,38 @@ export default function Dashboard() {
                 <Link
                   key={item.label}
                   to={item.href}
-                  className="group flex items-center justify-between px-4 py-3 hover:bg-muted/40"
+                  className="group flex items-center justify-between px-5 py-3 hover:bg-muted/40 transition-colors"
                 >
                   <div>
                     <p className="text-sm font-medium">{item.label}</p>
-                    <p className="text-xs text-muted-foreground mt-1">{item.desc}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">{item.desc}</p>
                   </div>
-                  <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-foreground" />
+                  <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
                 </Link>
               ))}
             </div>
           </div>
 
-          <div className="border bg-background">
-            <div className="border-b px-4 py-3">
+          <div className="bg-card rounded-xl border shadow-sm">
+            <div className="border-b px-5 py-3">
               <h3 className="text-sm font-semibold">Status Operasional</h3>
             </div>
-            <div className="space-y-3 p-4">
-              <div className="border p-3">
+            <div className="space-y-3 p-5">
+              <div className="bg-muted/40 rounded-lg p-4">
                 <p className="text-xs uppercase tracking-wide text-muted-foreground">Verifikasi Pembayaran</p>
-                <p className="mt-1 text-sm">
+                <p className="mt-1 text-sm font-medium">
                   {stats.pending_verification === 0
                     ? "Tidak ada antrian verifikasi."
                     : `${stats.pending_verification} pembayaran menunggu verifikasi.`}
                 </p>
               </div>
-              <div className="border p-3">
+              <div className="bg-muted/40 rounded-lg p-4">
                 <p className="text-xs uppercase tracking-wide text-muted-foreground">Fokus Hari Ini</p>
                 <p className="mt-1 text-sm">Pastikan data akademik dan pembayaran selalu sinkron dan terverifikasi.</p>
               </div>
             </div>
           </div>
-        </section>
+        </div>
       </div>
     </PageShell>
   )

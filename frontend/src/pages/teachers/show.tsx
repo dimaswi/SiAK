@@ -7,8 +7,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import PageShell from "../../components/PageShell"
 import { Button } from "../../components/ui/button"
 import { Badge } from "../../components/ui/badge"
-import { Separator } from "../../components/ui/separator"
-import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card"
 import { Skeleton } from "../../components/ui/skeleton"
 
 interface TeacherDetail {
@@ -78,17 +76,16 @@ export default function TeacherShow() {
 
   if (isLoading) {
     return (
-      <div className="flex flex-col gap-4 max-w-3xl">
+      <div className="flex flex-col gap-4 max-w-3xl px-4 md:px-6 lg:px-8 pt-4">
         <div className="flex items-center gap-4">
-          <Skeleton className="h-8 w-8 rounded-none" />
+          <Skeleton className="h-9 w-9 rounded-full" />
           <Skeleton className="h-5 w-52" />
         </div>
-        <Separator />
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Skeleton className="h-48 rounded-none" />
+          <Skeleton className="h-48 rounded-xl" />
           <div className="md:col-span-2 space-y-4">
-            <Skeleton className="h-40 rounded-none" />
-            <Skeleton className="h-40 rounded-none" />
+            <Skeleton className="h-40 rounded-xl" />
+            <Skeleton className="h-40 rounded-xl" />
           </div>
         </div>
       </div>
@@ -98,7 +95,7 @@ export default function TeacherShow() {
   if (!teacher) {
     return (
       <div className="flex flex-col items-center justify-center gap-4 py-20 text-center">
-        <div className="h-12 w-12 rounded-none bg-muted flex items-center justify-center">
+        <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center">
           <User className="h-6 w-6 text-muted-foreground" />
         </div>
         <div>
@@ -120,28 +117,23 @@ export default function TeacherShow() {
       title="Detail Profil Guru"
       description="Detail informasi lengkap guru."
       backButton={
-        <>
-          <Button variant="outline" size="icon" className="shrink-0" asChild>
-            <Link to="/guru">
-              <ArrowLeft className="h-4 w-4" />
-            </Link>
-          </Button>
-        </>
+        <Button variant="ghost" size="icon" asChild className="rounded-full bg-white shadow-sm border border-slate-200 h-9 w-9">
+          <Link to="/guru">
+            <ArrowLeft className="h-4 w-4 text-slate-600" />
+          </Link>
+        </Button>
       }
       actions={
-        <>
-
-          <Button asChild size="sm" variant="outline" className="gap-2">
-            <Link to={`/guru/${teacher.id}/edit`}>
-              <Pencil className="h-3.5 w-3.5" /> Ubah Data
-            </Link>
-          </Button>
-        </>
+        <Button asChild size="sm" variant="outline" className="gap-2 shadow-xs">
+          <Link to={`/guru/${teacher.id}/edit`}>
+            <Pencil className="h-3.5 w-3.5" /> Ubah Data
+          </Link>
+        </Button>
       }
     >
       <div className="flex flex-col gap-6 w-full">
-        {/* Avatar Card (Header for Show) */}
-        <Card className="border bg-card flex flex-col sm:flex-row items-center sm:items-start p-6 gap-6 w-full">
+        {/* Avatar Card */}
+        <div className="bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col sm:flex-row items-center sm:items-start p-6 gap-6 w-full">
           <div className="h-24 w-24 rounded-full bg-muted border-4 border-background shadow-sm flex items-center justify-center shrink-0 overflow-hidden">
             <User className="h-10 w-10 text-muted-foreground" />
           </div>
@@ -158,7 +150,7 @@ export default function TeacherShow() {
               {teacher.subject && <Badge variant="secondary" className="text-xs">{teacher.subject}</Badge>}
             </div>
           </div>
-        </Card>
+        </div>
 
         <Tabs defaultValue="profil" className="w-full flex-1 flex flex-col">
           <div className="border-b px-2">
@@ -173,80 +165,80 @@ export default function TeacherShow() {
           <div className="pt-6">
             <TabsContent value="profil" className="m-0 focus-visible:outline-none">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <Card className="border bg-card">
-                  <CardHeader className="pb-3 border-b"><CardTitle className="text-base">Informasi Dasar</CardTitle></CardHeader>
-                  <CardContent className="pt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                  <div className="bg-slate-50 border-b px-4 py-3"><h4 className="text-sm font-semibold text-slate-800">Informasi Dasar</h4></div>
+                  <div className="p-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <InfoRow label="Nama Lengkap" value={teacher.full_name} />
                     <InfoRow label="Jenis Kelamin" value={teacher.gender === "L" ? "Laki-laki" : "Perempuan"} />
                     <InfoRow label="Tempat, Tgl Lahir" value={`${teacher.birth_place || "—"}, ${formatDate(teacher.birth_date)}`} />
                     <InfoRow label="Agama" value={teacher.religion} />
                     <InfoRow label="Status Perkawinan" value={teacher.marital_status?.replace("_", " ")} />
                     <InfoRow label="Kewarganegaraan" value={teacher.nationality} />
-                  </CardContent>
-                </Card>
+                  </div>
+                </div>
 
-                <Card className="border bg-card">
-                  <CardHeader className="pb-3 border-b"><CardTitle className="text-base">Dokumen Identitas</CardTitle></CardHeader>
-                  <CardContent className="pt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                  <div className="bg-slate-50 border-b px-4 py-3"><h4 className="text-sm font-semibold text-slate-800">Dokumen Identitas</h4></div>
+                  <div className="p-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <InfoRow label="NIK (No. KTP)" value={teacher.nik} />
                     <InfoRow label="NUPTK" value={teacher.nuptk} />
                     <InfoRow label="NPWP" value={teacher.npwp} />
-                  </CardContent>
-                </Card>
+                  </div>
+                </div>
               </div>
             </TabsContent>
 
             <TabsContent value="kepegawaian" className="m-0 focus-visible:outline-none">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <Card className="border bg-card">
-                  <CardHeader className="pb-3 border-b"><CardTitle className="text-base">Penugasan & Jabatan</CardTitle></CardHeader>
-                  <CardContent className="pt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                  <div className="bg-slate-50 border-b px-4 py-3"><h4 className="text-sm font-semibold text-slate-800">Penugasan & Jabatan</h4></div>
+                  <div className="p-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <InfoRow label="Status Kepegawaian" value={teacher.employee_status?.replace("_", " ")} />
                     <InfoRow label="Jabatan" value={teacher.position} />
                     <InfoRow label="Mata Pelajaran" value={teacher.subject} />
                     <InfoRow label="Jam Mengajar" value={teacher.teaching_hours ? `${teacher.teaching_hours} Jam/Minggu` : ""} />
-                  </CardContent>
-                </Card>
+                  </div>
+                </div>
 
-                <Card className="border bg-card">
-                  <CardHeader className="pb-3 border-b"><CardTitle className="text-base">Informasi SK</CardTitle></CardHeader>
-                  <CardContent className="pt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                  <div className="bg-slate-50 border-b px-4 py-3"><h4 className="text-sm font-semibold text-slate-800">Informasi SK</h4></div>
+                  <div className="p-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <InfoRow label="Golongan / Pangkat" value={teacher.rank} />
                     <InfoRow label="TMT (Tanggal Mulai Tugas)" value={formatDate(teacher.join_date)} />
                     <div className="sm:col-span-2"><InfoRow label="No. SK Pengangkatan" value={teacher.sk_number} /></div>
-                  </CardContent>
-                </Card>
+                  </div>
+                </div>
               </div>
             </TabsContent>
 
             <TabsContent value="pendidikan" className="m-0 focus-visible:outline-none">
               <div className="grid grid-cols-1 gap-6">
-                <Card className="border bg-card">
-                  <CardHeader className="pb-3 border-b"><CardTitle className="text-base">Riwayat Pendidikan Terakhir</CardTitle></CardHeader>
-                  <CardContent className="pt-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                  <div className="bg-slate-50 border-b px-4 py-3"><h4 className="text-sm font-semibold text-slate-800">Riwayat Pendidikan Terakhir</h4></div>
+                  <div className="p-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
                     <InfoRow label="Jenjang" value={teacher.education_level?.toUpperCase()} />
                     <InfoRow label="Jurusan / Prodi" value={teacher.education_major} />
                     <InfoRow label="Universitas / Institusi" value={teacher.university} />
                     <InfoRow label="Tahun Lulus" value={teacher.graduation_year?.toString()} />
                     <div className="sm:col-span-2"><InfoRow label="No. Sertifikat Pendidik" value={teacher.cert_number} /></div>
-                  </CardContent>
-                </Card>
+                  </div>
+                </div>
               </div>
             </TabsContent>
 
             <TabsContent value="alamat" className="m-0 focus-visible:outline-none">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <Card className="border bg-card">
-                  <CardHeader className="pb-3 border-b"><CardTitle className="text-base">Kontak Aktif</CardTitle></CardHeader>
-                  <CardContent className="pt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                  <div className="bg-slate-50 border-b px-4 py-3"><h4 className="text-sm font-semibold text-slate-800">Kontak Aktif</h4></div>
+                  <div className="p-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <InfoRow label="Nomor Telepon / HP" value={teacher.phone} />
                     <InfoRow label="Email" value={teacher.email} />
-                  </CardContent>
-                </Card>
+                  </div>
+                </div>
 
-                <Card className="border bg-card">
-                  <CardHeader className="pb-3 border-b"><CardTitle className="text-base">Alamat Domisili</CardTitle></CardHeader>
-                  <CardContent className="pt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                  <div className="bg-slate-50 border-b px-4 py-3"><h4 className="text-sm font-semibold text-slate-800">Alamat Domisili</h4></div>
+                  <div className="p-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="sm:col-span-2"><InfoRow label="Alamat Jalan" value={teacher.address} /></div>
                     <InfoRow label="RT/RW" value={teacher.rt_rw} />
                     <InfoRow label="Kelurahan / Desa" value={teacher.village} />
@@ -254,8 +246,8 @@ export default function TeacherShow() {
                     <InfoRow label="Kabupaten / Kota" value={teacher.city} />
                     <InfoRow label="Provinsi" value={teacher.province} />
                     <InfoRow label="Kode Pos" value={teacher.postal_code} />
-                  </CardContent>
-                </Card>
+                  </div>
+                </div>
               </div>
             </TabsContent>
           </div>

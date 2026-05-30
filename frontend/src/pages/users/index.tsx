@@ -48,7 +48,7 @@ export default function UsersIndex() {
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
   const [totalItems, setTotalItems] = useState(0)
-  const limit = 15
+  const limit = 10
 
   const [updatingId, setUpdatingId] = useState<string | null>(null)
 
@@ -230,7 +230,7 @@ export default function UsersIndex() {
   if (!isAdmin) {
     return (
       <PageShell title="Akses Ditolak" description="Anda tidak memiliki izin">
-        <div className="flex items-center gap-2 p-4 text-red-600 bg-red-50 rounded-lg border border-red-200">
+        <div className="flex items-center gap-2 p-4 text-red-600 bg-red-50 rounded-xl border border-red-200 shadow-sm">
           <AlertCircle className="h-5 w-5" />
           <p>Hanya Admin yang dapat mengakses halaman ini.</p>
         </div>
@@ -243,7 +243,7 @@ export default function UsersIndex() {
       title="Manajemen Pengguna"
       description="Kelola hak akses pengguna (Role) dan status akun."
     >
-      <div className="flex flex-col gap-4">
+      <div className="space-y-4">
         <DataTable
           columns={columns}
           data={data}
@@ -255,6 +255,7 @@ export default function UsersIndex() {
           searchValue={search}
           onSearchChange={handleSearchChange}
           totalItems={totalItems}
+          pageSize={limit}
           emptyMessage={search ? "Pengguna tidak ditemukan" : "Belum ada pengguna"}
         />
       </div>

@@ -28,6 +28,13 @@ func SetupRoutes(e *echo.Echo) {
 
 	// Authentication
 	api.POST("/login", controllers.Login)
+	api.POST("/public/ppdb/register", controllers.PublicRegisterPPDB)
+	api.POST("/public/ppdb/upload", controllers.PublicUploadPPDBDocument)
+	api.GET("/public/ppdb/status", controllers.PublicCheckPPDBStatus)
+	api.GET("/public/cms/pages/:key", controllers.PublicGetCMSPage)
+	api.GET("/public/cms/posts", controllers.PublicGetCMSPosts)
+	api.GET("/public/cms/posts/:slug", controllers.PublicGetCMSPostBySlug)
+	api.GET("/public/cms/navigation", controllers.PublicGetCMSNavigation)
 
 	// Protected routes group
 	protected := api.Group("")
@@ -62,6 +69,8 @@ func SetupRoutes(e *echo.Echo) {
 
 	// ── Upload routes ──────────────────────────────────────────
 	adminLike.POST("/upload/photo", controllers.UploadPhoto)
+	adminLike.POST("/upload/cms-image", controllers.UploadCMSImage)
+	adminLike.GET("/upload/cms-images", controllers.GetCMSMediaLibrary)
 	studentLike.POST("/upload/payment-proof", controllers.UploadPaymentProof)
 
 	// ── SPP Settings routes ────────────────────────────────────
@@ -97,4 +106,25 @@ func SetupRoutes(e *echo.Echo) {
 	adminLike.PUT("/users/:id/role", controllers.UpdateUserRole)
 	adminLike.PUT("/users/:id/status", controllers.UpdateUserStatus)
 	adminLike.PUT("/users/:id/password", controllers.UpdateUserPassword)
+
+	// ── CMS Internal routes ────────────────────────────────────
+	adminLike.GET("/cms/pages", controllers.GetCMSPages)
+	adminLike.POST("/cms/pages", controllers.UpsertCMSPage)
+	adminLike.DELETE("/cms/pages/:id", controllers.DeleteCMSPage)
+	adminLike.GET("/cms/posts", controllers.GetCMSPosts)
+	adminLike.POST("/cms/posts", controllers.CreateCMSPost)
+	adminLike.PUT("/cms/posts/:id", controllers.UpdateCMSPost)
+	adminLike.DELETE("/cms/posts/:id", controllers.DeleteCMSPost)
+	adminLike.GET("/cms/navigation", controllers.GetCMSNavigationItems)
+	adminLike.POST("/cms/navigation", controllers.CreateCMSNavigationItem)
+	adminLike.PUT("/cms/navigation/:id", controllers.UpdateCMSNavigationItem)
+	adminLike.DELETE("/cms/navigation/:id", controllers.DeleteCMSNavigationItem)
+
+	// ── PPDB Internal routes ───────────────────────────────────
+	adminLike.GET("/ppdb/applications", controllers.GetPPDBApplications)
+	adminLike.GET("/ppdb/applications/:id", controllers.GetPPDBApplicationByID)
+	adminLike.POST("/ppdb/applications", controllers.CreatePPDBApplication)
+	adminLike.PUT("/ppdb/applications/:id", controllers.UpdatePPDBApplication)
+	adminLike.PUT("/ppdb/applications/:id/status", controllers.UpdatePPDBStatus)
+	adminLike.POST("/ppdb/applications/:id/convert", controllers.ConvertPPDBToStudent)
 }

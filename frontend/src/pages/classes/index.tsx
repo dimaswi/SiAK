@@ -1,11 +1,10 @@
 import { useState, useEffect } from "react"
 import { Link } from "react-router-dom"
 import axios from "axios"
-import { Plus, Users, LayoutDashboard } from "lucide-react"
+import { Plus, Users, LayoutDashboard, Trash, EditIcon } from "lucide-react"
 
 import PageShell from "../../components/PageShell"
 import { Button } from "../../components/ui/button"
-import { Card, CardContent } from "../../components/ui/card"
 import { DataTable } from "../../components/DataTable"
 import { useAuth } from "../../context/AuthContext"
 import { useAppDialog } from "../../context/AppDialogContext"
@@ -48,7 +47,7 @@ export default function ClassesIndex() {
     }
   }
 
-  useEffect(() => { 
+  useEffect(() => {
     fetchData(page)
   }, [page])
 
@@ -115,7 +114,9 @@ export default function ClassesIndex() {
               size="sm"
               asChild
             >
-              <Link to={`/classes/${cls.id}/edit`}>Edit</Link>
+              <Link to={`/classes/${cls.id}/edit`}>
+                <EditIcon className="h-4 w-4 text-yellow-600"></EditIcon>
+              </Link>
             </Button>
             <Button
               variant="outline"
@@ -123,7 +124,7 @@ export default function ClassesIndex() {
               className="text-destructive hover:bg-destructive/10"
               onClick={() => handleDelete(cls.id, cls.name)}
             >
-              Hapus
+              <Trash className="h-4 w-4"></Trash>
             </Button>
           </div>
         )
@@ -147,31 +148,27 @@ export default function ClassesIndex() {
     >
       <div className="flex flex-col gap-4">
         {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-          <Card className="border bg-card">
-            <CardContent className="p-4 flex items-center gap-3">
-              <div className="h-9 w-9 rounded-lg bg-blue-500/10 flex items-center justify-center shrink-0">
-                <LayoutDashboard className="h-4 w-4 text-blue-600" />
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Total Kelas</p>
-                <p className="text-lg font-bold">{totalItems}</p>
-              </div>
-            </CardContent>
-          </Card>
-          <Card className="border bg-card">
-            <CardContent className="p-4 flex items-center gap-3">
-              <div className="h-9 w-9 rounded-lg bg-green-500/10 flex items-center justify-center shrink-0">
-                <Users className="h-4 w-4 text-green-600" />
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Total Siswa Terdaftar di Kelas</p>
-                <p className="text-lg font-bold">
-                  {data.reduce((acc, curr) => acc + curr.student_count, 0)}
-                </p>
-              </div>
-            </CardContent>
-          </Card>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4 flex items-center gap-3">
+            <div className="h-9 w-9 rounded-full bg-indigo-500/10 flex items-center justify-center shrink-0">
+              <LayoutDashboard className="h-4 w-4 text-indigo-600" />
+            </div>
+            <div>
+              <p className="text-xs text-slate-500">Total Kelas</p>
+              <p className="text-lg font-bold text-slate-800">{totalItems}</p>
+            </div>
+          </div>
+          <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4 flex items-center gap-3">
+            <div className="h-9 w-9 rounded-full bg-emerald-500/10 flex items-center justify-center shrink-0">
+              <Users className="h-4 w-4 text-emerald-600" />
+            </div>
+            <div>
+              <p className="text-xs text-slate-500">Total Siswa Terdaftar di Kelas</p>
+              <p className="text-lg font-bold text-slate-800">
+                {data.reduce((acc, curr) => acc + curr.student_count, 0)}
+              </p>
+            </div>
+          </div>
         </div>
 
         <DataTable

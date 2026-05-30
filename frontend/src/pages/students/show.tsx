@@ -8,10 +8,10 @@ import PageShell from "../../components/PageShell"
 import { Button } from "../../components/ui/button"
 import { Badge } from "../../components/ui/badge"
 import { Separator } from "../../components/ui/separator"
-import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card"
 import { Skeleton } from "../../components/ui/skeleton"
 import { DataTable } from "../../components/DataTable"
 import { sppPaymentColumns, type SppPayment } from "../spp/columns"
+import { useAuth } from "../../context/AuthContext"
 
 interface StudentDetail {
   id: string
@@ -79,6 +79,8 @@ function InfoRow({ label, value }: { label: string; value?: string }) {
 
 export default function StudentShow() {
   const { id } = useParams<{ id: string }>()
+  const { user } = useAuth()
+  const backHref = user?.role === "guru" ? "/classes" : "/siswa"
   const [student, setStudent] = useState<StudentDetail | null>(null)
   const [sppPayments, setSppPayments] = useState<SppPayment[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -103,17 +105,16 @@ export default function StudentShow() {
 
   if (isLoading) {
     return (
-      <div className="flex flex-col gap-4 max-w-3xl">
+      <div className="flex flex-col gap-4 max-w-3xl px-4 md:px-6 lg:px-8 pt-4">
         <div className="flex items-center gap-4">
-          <Skeleton className="h-8 w-8 rounded-none-none" />
+          <Skeleton className="h-9 w-9 rounded-full" />
           <Skeleton className="h-5 w-52" />
         </div>
-        <Separator />
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Skeleton className="h-48 rounded-none-none" />
-          <div className="md:col-span-2 space-y-[2px]">
-            <Skeleton className="h-40 rounded-none-none" />
-            <Skeleton className="h-40 rounded-none-none" />
+          <Skeleton className="h-48 rounded-xl" />
+          <div className="md:col-span-2 space-y-4">
+            <Skeleton className="h-40 rounded-xl" />
+            <Skeleton className="h-40 rounded-xl" />
           </div>
         </div>
       </div>
@@ -131,7 +132,7 @@ export default function StudentShow() {
           <p className="text-sm text-muted-foreground mt-1">Data siswa mungkin telah dihapus.</p>
         </div>
         <Button asChild variant="outline" size="sm">
-          <Link to="/siswa">Kembali ke Daftar Siswa</Link>
+          <Link to={backHref}>Kembali</Link>
         </Button>
       </div>
     )
@@ -145,27 +146,23 @@ export default function StudentShow() {
       title="Detail Profil Siswa"
       description="Detail informasi lengkap siswa."
       backButton={
-        <Button variant="outline" size="icon" className="shrink-0" asChild>
-          <Link to="/siswa">
-            <ArrowLeft className="h-4 w-4" />
+        <Button variant="ghost" size="icon" asChild className="rounded-full bg-white shadow-sm border border-slate-200 h-9 w-9">
+          <Link to={backHref}>
+            <ArrowLeft className="h-4 w-4 text-slate-600" />
           </Link>
         </Button>
       }
       actions={
-        <>
-          <Button asChild size="sm" variant="outline" className="gap-2">
-            <Link to={`/siswa/${student.id}/edit`}>
-              <Pencil className="h-3.5 w-3.5" /> Ubah Data
-            </Link>
-          </Button>
-        </>
+        <Button asChild size="sm" variant="outline" className="gap-2 shadow-xs">
+          <Link to={`/siswa/${student.id}/edit`}>
+            <Pencil className="h-3.5 w-3.5" /> Ubah Data
+          </Link>
+        </Button>
       }
     >
-      <div className="flex flex-col gap-4 max-w-full">
-
-        <div className="flex flex-col gap-6 w-full">
-          {/* Avatar Card (Header for Show) */}
-          <Card className="border bg-card flex flex-col sm:flex-row items-center sm:items-start p-6 gap-6 w-full">
+      <div className="flex flex-col gap-6 w-full">
+          {/* Avatar Card */}
+          <div className="bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col sm:flex-row items-center sm:items-start p-6 gap-6 w-full">
             <div className="h-24 w-24 rounded-full bg-muted border-4 border-background shadow-sm flex items-center justify-center shrink-0 overflow-hidden">
               {student.photo_url ? (
                 <img src={`http://localhost:8080${student.photo_url}`} alt={student.full_name} className="h-full w-full object-cover" />
@@ -185,7 +182,7 @@ export default function StudentShow() {
                 {student.exit_type && <Badge variant="destructive" className="text-xs uppercase">{student.exit_type.replace("_", " ")}</Badge>}
               </div>
             </div>
-          </Card>
+          </div>
 
           <Tabs defaultValue="profil" className="w-full flex-1 flex flex-col">
             <div className="border-b px-2">
@@ -200,9 +197,9 @@ export default function StudentShow() {
             <div className="pt-6">
               <TabsContent value="profil" className="m-0 focus-visible:outline-none">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <Card className="border bg-card">
-                    <CardHeader className="pb-3 border-b"><CardTitle className="text-base">Informasi Dasar</CardTitle></CardHeader>
-                    <CardContent className="pt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div className="bg-slate-50 border-b px-4 py-3"><h4 className="text-sm font-semibold text-slate-800">Informasi Dasar</h4></div>
+                    <div className="p-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <InfoRow label="Nama Lengkap" value={student.full_name} />
                       <InfoRow label="Jenis Kelamin" value={student.gender === "L" ? "Laki-laki" : "Perempuan"} />
                       <InfoRow label="Tempat, Tgl Lahir" value={`${student.birth_place || "—"}, ${formatDate(student.birth_date)}`} />
@@ -210,50 +207,50 @@ export default function StudentShow() {
                       <InfoRow label="Kewarganegaraan" value={student.nationality} />
                       <InfoRow label="Nomor Telepon" value={student.phone} />
                       <div className="sm:col-span-2"><InfoRow label="Tanggal Masuk" value={formatDate(student.enrollment_date)} /></div>
-                    </CardContent>
-                  </Card>
+                    </div>
+                  </div>
 
-                  <Card className="border bg-card">
-                    <CardHeader className="pb-3 border-b"><CardTitle className="text-base">Dokumen & Akademik</CardTitle></CardHeader>
-                    <CardContent className="pt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div className="bg-slate-50 border-b px-4 py-3"><h4 className="text-sm font-semibold text-slate-800">Dokumen & Akademik</h4></div>
+                    <div className="p-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <InfoRow label="NIS" value={student.nis} />
                       <InfoRow label="NISN" value={student.nisn} />
                       <InfoRow label="No. Akta Kelahiran" value={student.birth_certificate_no} />
                       <InfoRow label="No. Kartu Keluarga" value={student.kk_number} />
                       <div className="sm:col-span-2"><InfoRow label="No. PIP / KIP" value={student.pip_number} /></div>
                       <div className="sm:col-span-2"><InfoRow label="Alasan Menerima PIP" value={student.pip_reason} /></div>
-                    </CardContent>
-                  </Card>
+                    </div>
+                  </div>
 
                   {student.exit_type && (
-                    <Card className="border bg-card md:col-span-2">
-                      <CardHeader className="pb-3 border-b"><CardTitle className="text-base text-destructive">Status Keluar</CardTitle></CardHeader>
-                      <CardContent className="pt-4 grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div className="bg-red-50 rounded-xl border border-red-200 shadow-sm overflow-hidden md:col-span-2">
+                      <div className="bg-red-100 border-b border-red-200 px-4 py-3"><h4 className="text-sm font-semibold text-red-800">Status Keluar</h4></div>
+                      <div className="p-4 grid grid-cols-1 sm:grid-cols-3 gap-4">
                         <InfoRow label="Jenis Keluar" value={student.exit_type?.replace("_", " ")} />
                         <InfoRow label="Tanggal Keluar" value={formatDate(student.exit_date)} />
                         <InfoRow label="Alasan / Keterangan" value={student.exit_reason} />
-                      </CardContent>
-                    </Card>
+                      </div>
+                    </div>
                   )}
                 </div>
               </TabsContent>
 
               <TabsContent value="sosial" className="m-0 focus-visible:outline-none">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <Card className="border bg-card">
-                    <CardHeader className="pb-3 border-b"><CardTitle className="text-base">Kondisi Sosial</CardTitle></CardHeader>
-                    <CardContent className="pt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div className="bg-slate-50 border-b px-4 py-3"><h4 className="text-sm font-semibold text-slate-800">Kondisi Sosial</h4></div>
+                    <div className="p-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <InfoRow label="Anak ke-" value={student.child_order?.toString()} />
                       <InfoRow label="Jumlah Saudara" value={student.num_siblings?.toString()} />
                       <InfoRow label="Tinggal Bersama" value={student.living_with} />
                       <InfoRow label="Transportasi" value={student.transportation} />
                       <div className="sm:col-span-2"><InfoRow label="Kebutuhan Khusus" value={student.special_needs} /></div>
-                    </CardContent>
-                  </Card>
+                    </div>
+                  </div>
 
-                  <Card className="border bg-card">
-                    <CardHeader className="pb-3 border-b"><CardTitle className="text-base">Alamat Domisili</CardTitle></CardHeader>
-                    <CardContent className="pt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div className="bg-slate-50 border-b px-4 py-3"><h4 className="text-sm font-semibold text-slate-800">Alamat Domisili</h4></div>
+                    <div className="p-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="sm:col-span-2"><InfoRow label="Alamat Jalan" value={student.address} /></div>
                       <InfoRow label="RT/RW" value={student.rt_rw} />
                       <InfoRow label="Kelurahan / Desa" value={student.village} />
@@ -261,16 +258,16 @@ export default function StudentShow() {
                       <InfoRow label="Kabupaten / Kota" value={student.city} />
                       <InfoRow label="Provinsi" value={student.province} />
                       <InfoRow label="Kode Pos" value={student.postal_code} />
-                    </CardContent>
-                  </Card>
+                    </div>
+                  </div>
                 </div>
               </TabsContent>
 
               <TabsContent value="keluarga" className="m-0 focus-visible:outline-none">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <Card className="border bg-card">
-                    <CardHeader className="pb-3 border-b"><CardTitle className="text-base">Data Ayah Kandung</CardTitle></CardHeader>
-                    <CardContent className="pt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div className="bg-slate-50 border-b px-4 py-3"><h4 className="text-sm font-semibold text-slate-800">Data Ayah Kandung</h4></div>
+                    <div className="p-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="sm:col-span-2 flex items-center justify-between">
                         <InfoRow label="Nama Ayah" value={student.father_name} />
                         <Badge variant="outline">{student.father_is_alive ? "Masih Hidup" : "Meninggal"}</Badge>
@@ -280,12 +277,12 @@ export default function StudentShow() {
                       <InfoRow label="Pendidikan Terakhir" value={student.father_education?.toUpperCase()} />
                       <InfoRow label="Pekerjaan" value={student.father_occupation} />
                       <InfoRow label="Penghasilan Bulanan" value={student.father_income ? `Rp ${student.father_income.toLocaleString('id-ID')}` : undefined} />
-                    </CardContent>
-                  </Card>
+                    </div>
+                  </div>
 
-                  <Card className="border bg-card">
-                    <CardHeader className="pb-3 border-b"><CardTitle className="text-base">Data Ibu Kandung</CardTitle></CardHeader>
-                    <CardContent className="pt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div className="bg-slate-50 border-b px-4 py-3"><h4 className="text-sm font-semibold text-slate-800">Data Ibu Kandung</h4></div>
+                    <div className="p-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="sm:col-span-2 flex items-center justify-between">
                         <InfoRow label="Nama Ibu" value={student.mother_name} />
                         <Badge variant="outline">{student.mother_is_alive ? "Masih Hidup" : "Meninggal"}</Badge>
@@ -295,20 +292,20 @@ export default function StudentShow() {
                       <InfoRow label="Pendidikan Terakhir" value={student.mother_education?.toUpperCase()} />
                       <InfoRow label="Pekerjaan" value={student.mother_occupation} />
                       <InfoRow label="Penghasilan Bulanan" value={student.mother_income ? `Rp ${student.mother_income.toLocaleString('id-ID')}` : undefined} />
-                    </CardContent>
-                  </Card>
+                    </div>
+                  </div>
 
-                  <Card className="border bg-card md:col-span-2">
-                    <CardHeader className="pb-3 border-b"><CardTitle className="text-base">Kontak & Wali</CardTitle></CardHeader>
-                    <CardContent className="pt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden md:col-span-2">
+                    <div className="bg-slate-50 border-b px-4 py-3"><h4 className="text-sm font-semibold text-slate-800">Kontak & Wali</h4></div>
+                    <div className="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                       <div className="col-span-2 sm:col-span-1 lg:col-span-2"><InfoRow label="Kontak Darurat Orang Tua" value={`${student.parent_name || '—'} (${student.parent_phone || '—'})`} /></div>
                       <div className="col-span-2"><Separator className="my-2" /></div>
                       <InfoRow label="Nama Wali" value={student.guardian_name} />
                       <InfoRow label="Hubungan Wali" value={student.guardian_relation} />
                       <InfoRow label="Pekerjaan Wali" value={student.guardian_occupation} />
                       <InfoRow label="Telepon Wali" value={student.guardian_phone} />
-                    </CardContent>
-                  </Card>
+                    </div>
+                  </div>
                 </div>
               </TabsContent>
 
@@ -326,7 +323,6 @@ export default function StudentShow() {
             </div>
           </Tabs>
         </div>
-      </div>
     </PageShell>
   )
 }

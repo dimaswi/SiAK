@@ -20,6 +20,20 @@ import ClassesIndex from './pages/classes/index';
 import ClassShow from './pages/classes/show';
 import ClassCreate from './pages/classes/create';
 import ClassEdit from './pages/classes/edit';
+import CMSIndex from './pages/cms/index';
+import CMSCompanyIndex from './pages/cms/company/index';
+import CMSCompanyCreate from './pages/cms/company/create';
+import CMSCompanyEdit from './pages/cms/company/edit';
+import CMSCompanyShow from './pages/cms/company/show';
+import CMSBlogIndex from './pages/cms/blog/index';
+import CMSBlogCreate from './pages/cms/blog/create';
+import CMSBlogEdit from './pages/cms/blog/edit';
+import CMSBlogShow from './pages/cms/blog/show';
+import CMSNavigationIndex from './pages/cms/navigation/index';
+import PPDBIndex from './pages/ppdb/index';
+import PPDBCreate from './pages/ppdb/create';
+import PPDBShow from './pages/ppdb/show';
+import PPDBEdit from './pages/ppdb/edit';
 import { AppDialogProvider } from './context/AppDialogContext';
 import RoleRoute from './components/RoleRoute';
 
@@ -37,57 +51,71 @@ function App() {
       <AppDialogProvider>
         <Router>
           <Routes>
-          <Route path="/login" element={<Login />} />
+            <Route path="/login" element={<Login />} />
 
-          {/* Protected + shared Layout shell */}
-          <Route element={<ProtectedRoute />}>
-            <Route element={<DashboardLayout />}>
-              <Route element={<RoleRoute allow={["admin", "kepala_sekolah", "guru"]} />}>
-                <Route path="/" element={<Dashboard />} />
-              </Route>
+            {/* Protected + shared Layout shell */}
+            <Route element={<ProtectedRoute />}>
+              <Route element={<DashboardLayout />}>
+                <Route element={<RoleRoute allow={["admin", "kepala_sekolah", "guru"]} />}>
+                  <Route path="/" element={<Dashboard />} />
+                </Route>
 
-              {/* Teacher Routes */}
-              <Route element={<RoleRoute allow={["admin", "kepala_sekolah"]} />}>
-                <Route path="/guru" element={<TeachersIndex />} />
-                <Route path="/guru/create" element={<TeacherCreate />} />
-                <Route path="/guru/:id" element={<TeacherShow />} />
-                <Route path="/guru/:id/edit" element={<TeacherEdit />} />
-              </Route>
+                {/* Teacher Routes */}
+                <Route element={<RoleRoute allow={["admin", "kepala_sekolah"]} />}>
+                  <Route path="/guru" element={<TeachersIndex />} />
+                  <Route path="/guru/create" element={<TeacherCreate />} />
+                  <Route path="/guru/:id" element={<TeacherShow />} />
+                  <Route path="/guru/:id/edit" element={<TeacherEdit />} />
+                </Route>
 
-              {/* Student Routes */}
-              <Route element={<RoleRoute allow={["admin", "kepala_sekolah"]} />}>
-                <Route path="/siswa" element={<StudentsIndex />} />
-                <Route path="/siswa/create" element={<StudentCreate />} />
-              </Route>
-              <Route element={<RoleRoute allow={["admin", "kepala_sekolah", "guru"]} />}>
-                <Route path="/siswa/:id" element={<StudentShow />} />
-                <Route path="/siswa/:id/edit" element={<StudentEdit />} />
-              </Route>
+                {/* Student Routes */}
+                <Route element={<RoleRoute allow={["admin", "kepala_sekolah"]} />}>
+                  <Route path="/siswa" element={<StudentsIndex />} />
+                  <Route path="/siswa/create" element={<StudentCreate />} />
+                </Route>
+                <Route element={<RoleRoute allow={["admin", "kepala_sekolah", "guru"]} />}>
+                  <Route path="/siswa/:id" element={<StudentShow />} />
+                  <Route path="/siswa/:id/edit" element={<StudentEdit />} />
+                </Route>
 
-              {/* SPP Routes */}
-              <Route path="/spp" element={<SppIndex />} />
-              <Route path="/spp/:id" element={<SppShow />} />
-              <Route element={<RoleRoute allow={["admin", "kepala_sekolah", "guru"]} />}>
-                <Route path="/spp/settings" element={<SppSettings />} />
-              </Route>
-              {/* Users Route */}
-              <Route element={<RoleRoute allow={["admin", "kepala_sekolah"]} />}>
-                <Route path="/users" element={<UsersIndex />} />
-              </Route>
+                {/* SPP Routes */}
+                <Route path="/spp" element={<SppIndex />} />
+                <Route path="/spp/:id" element={<SppShow />} />
+                <Route element={<RoleRoute allow={["admin", "kepala_sekolah", "guru"]} />}>
+                  <Route path="/spp/settings" element={<SppSettings />} />
+                </Route>
+                {/* Users Route */}
+                <Route element={<RoleRoute allow={["admin", "kepala_sekolah"]} />}>
+                  <Route path="/users" element={<UsersIndex />} />
+                  <Route path="/cms" element={<CMSIndex />} />
+                  <Route path="/cms/company" element={<CMSCompanyIndex />} />
+                  <Route path="/cms/company/create" element={<CMSCompanyCreate />} />
+                  <Route path="/cms/company/:id" element={<CMSCompanyShow />} />
+                  <Route path="/cms/company/:id/edit" element={<CMSCompanyEdit />} />
+                  <Route path="/cms/blog" element={<CMSBlogIndex />} />
+                  <Route path="/cms/blog/create" element={<CMSBlogCreate />} />
+                  <Route path="/cms/blog/:id" element={<CMSBlogShow />} />
+                  <Route path="/cms/blog/:id/edit" element={<CMSBlogEdit />} />
+                  <Route path="/cms/navigation" element={<CMSNavigationIndex />} />
+                  <Route path="/ppdb" element={<PPDBIndex />} />
+                  <Route path="/ppdb/create" element={<PPDBCreate />} />
+                  <Route path="/ppdb/:id" element={<PPDBShow />} />
+                  <Route path="/ppdb/:id/edit" element={<PPDBEdit />} />
+                </Route>
 
-              {/* Class Routes */}
-              <Route element={<RoleRoute allow={["admin", "kepala_sekolah", "guru"]} />}>
-                <Route path="/classes" element={<ClassesIndex />} />
-                <Route path="/classes/:id" element={<ClassShow />} />
-              </Route>
-              <Route element={<RoleRoute allow={["admin", "kepala_sekolah"]} />}>
-                <Route path="/classes/create" element={<ClassCreate />} />
-                <Route path="/classes/:id/edit" element={<ClassEdit />} />
+                {/* Class Routes */}
+                <Route element={<RoleRoute allow={["admin", "kepala_sekolah", "guru"]} />}>
+                  <Route path="/classes" element={<ClassesIndex />} />
+                  <Route path="/classes/:id" element={<ClassShow />} />
+                </Route>
+                <Route element={<RoleRoute allow={["admin", "kepala_sekolah"]} />}>
+                  <Route path="/classes/create" element={<ClassCreate />} />
+                  <Route path="/classes/:id/edit" element={<ClassEdit />} />
+                </Route>
               </Route>
             </Route>
-          </Route>
 
-          <Route path="*" element={<Navigate to="/" replace />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Router>
       </AppDialogProvider>

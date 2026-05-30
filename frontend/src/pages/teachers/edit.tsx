@@ -4,12 +4,11 @@ import axios from "axios"
 import { ArrowLeft, Loader2, Save, Camera, User } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
-import PageShell from "../../components/PageShell"
 import { Button } from "../../components/ui/button"
 import { Input } from "../../components/ui/input"
 import { Label } from "../../components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../../components/ui/card"
+
 
 const API = "http://localhost:8080/api"
 
@@ -36,19 +35,19 @@ const educationLevels = [
 
 function FormSection({ title, description, children }: { title: string; description?: string; children: React.ReactNode }) {
   return (
-    <Card className="border bg-card">
-      <CardHeader className="pb-4">
-        <CardTitle className="text-base font-medium">{title}</CardTitle>
-        {description && <CardDescription>{description}</CardDescription>}
-      </CardHeader>
-      <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">{children}</CardContent>
-    </Card>
+    <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+      <div className="mb-5">
+        <h3 className="text-sm font-semibold text-slate-800">{title}</h3>
+        {description && <p className="text-[13px] text-slate-500 mt-0.5">{description}</p>}
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">{children}</div>
+    </div>
   )
 }
 function Field({ label, required, children }: { label: string; required?: boolean; children: React.ReactNode }) {
   return (
-    <div className="space-y-1.5">
-      <Label className="text-sm">{label}{required && <span className="text-destructive ml-1">*</span>}</Label>
+    <div className="space-y-2">
+      <Label className="text-slate-700">{label}{required && <span className="text-red-500 ml-1">*</span>}</Label>
       {children}
     </div>
   )
@@ -116,22 +115,20 @@ export default function TeacherEdit() {
   if (isLoading) return <div className="flex h-full items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-muted-foreground" /></div>
 
   return (
-    <PageShell title="Ubah Data Guru" description="Perbarui informasi profil guru sesuai standar Dapodik."
-      backButton={<Button variant="outline" size="icon" className="rounded-none shrink-0" asChild><Link to="/guru"><ArrowLeft className="h-4 w-4" /></Link></Button>}
-      footer={
-        <>
-          <Button type="button" variant="outline" asChild>
-            <Link to={`/guru/${id}`}>Batal</Link>
+    <div className="animate-fade-in flex flex-col flex-1">
+      <div className="px-4 md:px-6 lg:px-8 pt-4 pb-6">
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" size="icon" asChild className="rounded-full bg-white shadow-sm border border-slate-200 h-9 w-9">
+            <Link to="/guru"><ArrowLeft className="w-4 h-4 text-slate-600" /></Link>
           </Button>
-          <Button type="submit" form="teacher-form" disabled={isSubmitting} className="gap-2 min-w-[140px]">
-            {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-            Simpan Perubahan
-          </Button>
-        </>
-      }
-    >
-      <div className="flex flex-col gap-4">
-        {error && <div className="rounded border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">{error}</div>}
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight text-slate-900">Ubah Data Guru</h1>
+            <p className="text-sm text-muted-foreground mt-0.5">Perbarui informasi profil guru sesuai standar Dapodik.</p>
+          </div>
+        </div>
+      </div>
+      <div className="flex flex-col gap-4 px-4 md:px-6 lg:px-8">
+        {error && <div className="rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">{error}</div>}
 
         <form id="teacher-form" onSubmit={handleSubmit} className="flex flex-col flex-1 h-full relative">
           <Tabs defaultValue="profil" className="w-full flex-1 flex flex-col gap-6">
@@ -146,12 +143,12 @@ export default function TeacherEdit() {
 
             <div className="flex-1 pb-24">
               <TabsContent value="profil" className="m-0 focus-visible:outline-none flex flex-col gap-6">
-                <Card className="border bg-card">
-                  <CardHeader className="pb-4">
-                    <CardTitle className="text-base font-medium">Foto Profil</CardTitle>
-                    <CardDescription>Format JPG, PNG, atau WebP. Maks 5MB.</CardDescription>
-                  </CardHeader>
-                  <CardContent className="flex items-center gap-6">
+                <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+                  <div className="mb-5">
+                    <h3 className="text-sm font-semibold text-slate-800">Foto Profil</h3>
+                    <p className="text-[13px] text-slate-500 mt-0.5">Format JPG, PNG, atau WebP. Maks 5MB.</p>
+                  </div>
+                  <div className="flex items-center gap-6">
                     <div className="relative h-24 w-24 rounded-full border-2 border-dashed border-border flex items-center justify-center overflow-hidden bg-muted cursor-pointer" onClick={() => fileInputRef.current?.click()}>
                       {photoPreview ? <img src={photoPreview} alt="Preview" className="h-full w-full object-cover" /> : <User className="h-10 w-10 text-muted-foreground" />}
                       <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity"><Camera className="h-5 w-5 text-white" /></div>
@@ -161,8 +158,8 @@ export default function TeacherEdit() {
                       <p className="text-xs text-muted-foreground mt-2">Klik foto atau tombol untuk memilih file</p>
                     </div>
                     <input ref={fileInputRef} type="file" accept=".jpg,.jpeg,.png,.webp" className="hidden" onChange={handlePhotoChange} />
-                  </CardContent>
-                </Card>
+                  </div>
+                </div>
 
                 <FormSection title="Akun Login" description="NIP digunakan sebagai username login guru.">
                   <Field label="NIP" required><Input name="nip" required value={formData.nip} onChange={handleChange} /></Field>
@@ -260,6 +257,14 @@ export default function TeacherEdit() {
           </Tabs>
         </form>
       </div>
-    </PageShell>
+
+      <div className="sticky bottom-0 z-50 flex justify-end gap-3 bg-background/95 backdrop-blur border-t p-4 mt-auto shadow-sm">
+        <Button type="button" variant="outline" asChild><Link to={`/guru/${id}`}>Batal</Link></Button>
+        <Button type="submit" form="teacher-form" disabled={isSubmitting} className="min-w-[140px]">
+          {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}
+          Simpan Perubahan
+        </Button>
+      </div>
+    </div>
   )
 }

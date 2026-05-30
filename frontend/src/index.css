@@ -32,7 +32,8 @@
     --input: 220 13% 91%;
     --ring: 221 83% 53%;
 
-    --radius: 0rem;
+    /* Radius seperti Go-Voting */
+    --radius: 0.5rem;
 
     /* Sidebar – clean dark style */
     --sidebar-background: 222 47% 11%;
@@ -71,11 +72,62 @@
 @layer base {
   * {
     border-color: hsl(var(--border));
-    
   }
   body {
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
     -webkit-font-smoothing: antialiased;
+    font-family: 'Inter', sans-serif;
+  }
+}
+
+/* ===================================================
+   ANIMATIONS (same as Go-Voting)
+   =================================================== */
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.25s ease forwards;
+}
+
+.animate-slide-up {
+  animation: slide-up 0.35s ease forwards;
+}
+
+/* ===================================================
+   CUSTOM SCROLLBAR (thin, like Go-Voting)
+   =================================================== */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: hsl(var(--muted));
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--border));
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground));
+}
+
+/* ===================================================
+   SHADOW-XS UTILITY (like Go-Voting inputs)
+   =================================================== */
+@layer utilities {
+  .shadow-xs {
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   }
 }

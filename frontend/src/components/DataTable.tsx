@@ -34,6 +34,7 @@ interface DataTableProps<TData, TValue> {
   searchValue?: string
   onSearchChange?: (value: string) => void
   totalItems?: number
+  pageSize?: number
   extraFilters?: React.ReactNode
 }
 
@@ -50,6 +51,7 @@ export function DataTable<TData, TValue>({
   searchValue,
   onSearchChange,
   totalItems,
+  pageSize = 10,
   extraFilters,
 }: DataTableProps<TData, TValue>) {
   const table = useReactTable({
@@ -108,9 +110,9 @@ export function DataTable<TData, TValue>({
             ))}
           </TableHeader>
           <TableBody>
-            {isLoading ? (
-              // Loading state
-              Array.from({ length: 5 }).map((_, i) => (
+            {isLoading && !data.length ? (
+              // Loading state only when no previous data exists
+              Array.from({ length: 10 }).map((_, i) => (
                 <TableRow key={i}>
                   {columns.map((_, j) => (
                     <TableCell key={j} className="p-4">
@@ -120,19 +122,30 @@ export function DataTable<TData, TValue>({
                 </TableRow>
               ))
             ) : table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                  className="transition-colors hover:bg-muted/30"
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} className="p-4">
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
+              <>
+                {table.getRowModel().rows.map((row) => (
+                  <TableRow
+                    key={row.id}
+                    data-state={row.getIsSelected() && "selected"}
+                    className={`transition-colors hover:bg-muted/30 ${isLoading ? "opacity-50 pointer-events-none" : ""}`}
+                  >
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id} className="p-4">
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))}
+                {table.getRowModel().rows.length > 0 && table.getRowModel().rows.length < pageSize && (
+                  Array.from({ length: pageSize - table.getRowModel().rows.length }).map((_, i) => (
+                    <TableRow key={`empty-${i}`} className="hover:bg-transparent border-0">
+                      <TableCell colSpan={columns.length} className="p-4">
+                        <div className="h-[21px]" />
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </>
             ) : (
               <TableRow>
                 <TableCell colSpan={columns.length} className="h-32 text-center">
@@ -149,44 +162,48 @@ export function DataTable<TData, TValue>({
 
       {/* Modern Professional Pagination */}
       {pageCount > 1 && (
-        <div className="flex items-center justify-between px-1">
-          <div className="text-xs text-muted-foreground uppercase tracking-wider font-medium">
-            Hal <span className="text-foreground">{pageIndex}</span> / {pageCount}
+        <div className="flex items-center justify-between px-1 pt-4 pb-8">
+          <div className="text-sm text-muted-foreground font-medium">
+            Halaman <span className="text-foreground">{pageIndex}</span> dari {pageCount}
           </div>
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-2">
             <Button
+              type="button"
               variant="outline"
               size="icon"
-              className="h-8 w-8 rounded-none border-dashed hover:border-solid hover:bg-muted"
+              className="h-8 w-8 rounded-md"
               onClick={() => onPageChange(1)}
-              disabled={pageIndex === 1}
+              disabled={pageIndex === 1 || isLoading}
             >
               <ChevronsLeft className="h-4 w-4" />
             </Button>
             <Button
+              type="button"
               variant="outline"
               size="icon"
-              className="h-8 w-8 rounded-none border-dashed hover:border-solid hover:bg-muted"
+              className="h-8 w-8 rounded-md"
               onClick={() => onPageChange(pageIndex - 1)}
-              disabled={pageIndex === 1}
+              disabled={pageIndex === 1 || isLoading}
             >
               <ChevronLeft className="h-4 w-4" />
             </Button>
             <Button
+              type="button"
               variant="outline"
               size="icon"
-              className="h-8 w-8 rounded-none border-dashed hover:border-solid hover:bg-muted"
+              className="h-8 w-8 rounded-md"
               onClick={() => onPageChange(pageIndex + 1)}
-              disabled={pageIndex === pageCount}
+              disabled={pageIndex === pageCount || isLoading}
             >
               <ChevronRight className="h-4 w-4" />
             </Button>
             <Button
+              type="button"
               variant="outline"
               size="icon"
-              className="h-8 w-8 rounded-none border-dashed hover:border-solid hover:bg-muted"
+              className="h-8 w-8 rounded-md"
               onClick={() => onPageChange(pageCount)}
-              disabled={pageIndex === pageCount}
+              disabled={pageIndex === pageCount || isLoading}
             >
               <ChevronsRight className="h-4 w-4" />
             </Button>
