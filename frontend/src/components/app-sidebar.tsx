@@ -23,13 +23,37 @@ import {
   FileText,
   ClipboardList,
   PanelsTopLeft,
+  LogOut,
 } from "lucide-react"
 import { useAuth } from "../context/AuthContext"
 
+import { useEffect, useState } from "react"
+import axios from "axios"
+
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const location = useLocation()
-  const { user } = useAuth()
+  const { user, logout } = useAuth()
   const role = user?.role
+
+  const [logoUrl, setLogoUrl] = useState("")
+  const [schoolName, setSchoolName] = useState("SiAK")
+
+  useEffect(() => {
+    axios.get("http://localhost:8080/api/site-config")
+      .then(res => {
+        if (res.data?.logo_url) {
+          let url = res.data.logo_url
+          if (!url.startsWith('http')) {
+            url = `http://localhost:8080${url}`
+          }
+          setLogoUrl(url)
+        }
+        if (res.data?.school_name) {
+          setSchoolName(res.data.school_name)
+        }
+      })
+      .catch(console.error)
+  }, [])
   const navGroups = role === "siswa" || role === "wali_murid"
     ? [
       {
@@ -60,38 +84,38 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           ],
         },
       ]
-    : [
-      {
-        title: "Utama",
-        items: [
-          { title: "Dashboard", url: "/", icon: LayoutDashboard },
-        ],
-      },
-      {
-        title: "Data Master",
-        items: [
-          { title: "Manajemen Kelas", url: "/classes", icon: BookOpen },
-          { title: "Data Guru", url: "/guru", icon: Users },
-          { title: "Data Murid", url: "/siswa", icon: GraduationCap },
-          { title: "PPDB", url: "/ppdb", icon: ClipboardList },
-          { title: "Pengguna", url: "/users", icon: Settings },
-        ],
-      },
-      {
-        title: "Portal Publik",
-        items: [
-          { title: "Company Profile", url: "/cms/company", icon: PanelsTopLeft },
-          { title: "Blog", url: "/cms/blog", icon: FileText },
-          { title: "Navigasi Portal", url: "/cms/navigation", icon: BookOpen },
-        ],
-      },
-      {
-        title: "Keuangan",
-        items: [
-          { title: "Pembayaran SPP", url: "/spp", icon: CreditCard },
-        ],
-      },
-    ]
+      : [
+        {
+          title: "Utama",
+          items: [
+            { title: "Dashboard", url: "/", icon: LayoutDashboard },
+          ],
+        },
+        {
+          title: "Data Master",
+          items: [
+            { title: "Manajemen Kelas", url: "/classes", icon: BookOpen },
+            { title: "Data Guru", url: "/guru", icon: Users },
+            { title: "Data Murid", url: "/siswa", icon: GraduationCap },
+            { title: "PPDB", url: "/ppdb", icon: ClipboardList },
+            { title: "Pengguna", url: "/users", icon: Settings },
+          ],
+        },
+        {
+          title: "Portal Publik",
+          items: [
+            { title: "Pengaturan Website", url: "/cms/company", icon: PanelsTopLeft },
+            { title: "Blog", url: "/cms/blog", icon: FileText },
+            { title: "Navigasi Portal", url: "/cms/navigation", icon: BookOpen },
+          ],
+        },
+        {
+          title: "Keuangan",
+          items: [
+            { title: "Pembayaran SPP", url: "/spp", icon: CreditCard },
+          ],
+        },
+      ]
 
   return (
     <Sidebar collapsible="icon" {...props}>
@@ -100,13 +124,17 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarHeader className="h-[60px] border-b border-sidebar-border p-0">
         {/* Ketika expanded: px-3, ketika collapsed: px-0 & justify-center agar ikon sempurna di tengah 48px */}
         <div className="flex h-full w-full items-center px-4 gap-3 overflow-hidden group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:justify-center">
-          <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-            <School className="h-4 w-4 text-white" />
+          <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-none flex items-center justify-center overflow-hidden">
+            {logoUrl ? (
+              <img src={logoUrl} alt="Logo" className="w-full h-full object-cover" />
+            ) : (
+              <School className="h-4 w-4 text-white" />
+            )}
           </div>
           {/* Text: hidden via CSS ketika collapsed */}
           <div className="flex flex-col min-w-0 group-data-[collapsible=icon]:hidden">
-            <span className="text-sm font-semibold text-sidebar-accent-foreground leading-tight">
-              SiAK
+            <span className="text-sm font-semibold text-sidebar-accent-foreground leading-tight truncate">
+              {schoolName}
             </span>
             <span className="text-[11px] text-sidebar-foreground/50 leading-tight">
               Admin Portal
@@ -155,14 +183,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton
-              asChild
-              tooltip="Pengaturan"
+              onClick={logout}
+              tooltip="Keluar"
               className="h-8 rounded-md text-sidebar-foreground/70 hover:text-sidebar-accent-foreground hover:bg-sidebar-accent"
             >
-              <Link to="#">
-                <Settings className="h-4 w-4 flex-shrink-0" />
-                <span className="text-sm">Pengaturan</span>
-              </Link>
+              <LogOut className="h-4 w-4 flex-shrink-0" />
+              <span className="text-sm">Log Out</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

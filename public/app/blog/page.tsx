@@ -1,15 +1,15 @@
 import Link from "next/link";
-import { fetchPublicPosts, fetchPublicPage, resolveAssetUrl, extractFirstImage } from "../../lib/api";
+import { fetchPublicPosts, fetchSiteConfig, resolveAssetUrl, extractFirstImage } from "../../lib/api";
 
 export default async function BlogPage() {
-  const [posts, hero] = await Promise.all([
+  const [posts, config] = await Promise.all([
     fetchPublicPosts(),
-    fetchPublicPage("blog-hero")
+    fetchSiteConfig()
   ]);
 
-  const heroEyebrow = hero?.meta_title || "Jurnal Sekolah";
-  const heroTitle = hero?.title || "Blog dan kabar resmi sekolah.";
-  const heroContent = hero?.content || "Temukan pengumuman, kegiatan, prestasi, dan cerita yang membentuk identitas sekolah di ruang publik.";
+  const heroEyebrow = "Jurnal Sekolah";
+  const heroTitle = "Blog dan kabar resmi sekolah.";
+  const heroContent = "Temukan pengumuman, kegiatan, prestasi, dan cerita yang membentuk identitas sekolah di ruang publik.";
 
   return (
     <div className="container section--spacious">
@@ -22,7 +22,7 @@ export default async function BlogPage() {
       <section className="section">
         <div className="post-grid">
           {(posts || []).length > 0 ? (posts || []).map((post: any) => (
-            <div key={post.id} className="card post-card">
+            <div key={post.id} className="card post-card btn-animated">
               <div className="post-card__media">
                 {post.cover_image_url || extractFirstImage(post.content) ? (
                   <img src={resolveAssetUrl(post.cover_image_url) || extractFirstImage(post.content) || ""} alt={post.title} />
@@ -35,11 +35,11 @@ export default async function BlogPage() {
               <h3>{post.title}</h3>
               <p className="muted">{post.excerpt || "Artikel ini sudah dipublikasikan dan siap dibaca lebih lanjut."}</p>
               <div className="post-card__footer">
-                <Link href={`/blog/${post.slug}`} className="btn-outline" style={{ display: 'inline-flex' }}>Baca Artikel</Link>
+                <Link href={`/blog/${post.slug}`} className="btn-outline" style={{ display: 'inline-flex', width: '100%', justifyContent: 'center' }}>Baca Artikel</Link>
               </div>
             </div>
           )) : (
-            <div className="panel">
+            <div className="panel col-span-3">
               <h2 style={{ marginTop: 0 }}>Belum ada artikel</h2>
               <p className="muted">Publikasikan artikel dari CMS admin agar halaman blog mulai terisi.</p>
             </div>

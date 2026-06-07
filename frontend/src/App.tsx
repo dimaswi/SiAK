@@ -45,7 +45,35 @@ function DashboardLayout() {
   );
 }
 
+import { useEffect } from 'react';
+import axios from 'axios';
+
 function App() {
+  useEffect(() => {
+    axios.get("http://localhost:8080/api/site-config")
+      .then(res => {
+        if (res.data?.logo_url) {
+          let url = res.data.logo_url;
+          if (!url.startsWith('http')) {
+            url = `http://localhost:8080${url}`;
+          }
+          const link = document.querySelector("link[rel~='icon']") as HTMLLinkElement;
+          if (link) {
+            link.href = url;
+          } else {
+            const newLink = document.createElement("link");
+            newLink.rel = "icon";
+            newLink.href = url;
+            document.head.appendChild(newLink);
+          }
+        }
+        if (res.data?.school_name) {
+          document.title = `Admin - ${res.data.school_name}`;
+        }
+      })
+      .catch(console.error);
+  }, []);
+
   return (
     <AuthProvider>
       <AppDialogProvider>

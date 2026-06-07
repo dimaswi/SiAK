@@ -3,14 +3,17 @@
 :root {
   --bg: #f4f4f0;
   --surface: #ffffff;
-  --surface-strong: #ffde59; /* Bright Yellow */
+  --surface-strong: #ffde59;
+  /* Bright Yellow */
   --text: #000000;
   --muted: #444444;
   --line: #000000;
-  --brand: #ff3b30; /* Bold Red */
+  --brand: #ff3b30;
+  /* Bold Red */
   --brand-deep: #000000;
   --brand-soft: #ffb3b0;
-  --accent: #00c2ff; /* Cyan */
+  --accent: #00c2ff;
+  /* Cyan */
   --accent-soft: #b8f0ff;
   --shadow-color: #000000;
   --border-width: 3px;
@@ -50,7 +53,7 @@ body {
   flex-direction: column;
 }
 
-.site-shell > main {
+.site-shell>main {
   flex: 1;
 }
 
@@ -78,7 +81,8 @@ select {
   border: var(--border-width) solid var(--line);
   background: var(--surface);
   color: var(--text);
-  border-radius: 0; /* Hard edges */
+  border-radius: 0;
+  /* Hard edges */
   padding: 14px 16px;
   font-size: 16px;
   box-shadow: 4px 4px 0px var(--shadow-color);
@@ -213,13 +217,15 @@ label {
 
 .site-header .nav a {
   border: 2px solid var(--line);
-  background: var(--surface); /* Default Putih */
+  background: var(--surface);
+  /* Default Putih */
   box-shadow: 3px 3px 0px var(--shadow-color);
 }
 
 .site-header .nav a:hover,
 .site-header .nav a.active {
-  background: var(--surface-strong); /* Kuning Saat Aktif / Hover */
+  background: var(--surface-strong);
+  /* Kuning Saat Aktif / Hover */
   border: 2px solid var(--line);
   box-shadow: 5px 5px 0px var(--shadow-color);
   transform: translate(-2px, -2px);
@@ -611,6 +617,107 @@ label {
   line-height: 1.2;
 }
 
+.hero-nordic__actions {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.btn-primary,
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 24px;
+  border-radius: 40px;
+  /* Pill shape */
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 15px;
+  border: 2px solid var(--line);
+  box-shadow: 4px 4px 0px var(--shadow-color);
+  transition: all 0.2s ease;
+}
+
+.btn-primary {
+  background: var(--brand);
+  /* Or any primary color */
+  color: #fff;
+}
+
+.btn-secondary {
+  background: var(--surface);
+  color: var(--text);
+}
+
+.btn-primary:hover,
+.btn-secondary:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px var(--shadow-color);
+}
+
+.hero-nordic__graphic {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 400px;
+  border: 2px solid var(--line);
+  box-shadow: 8px 8px 0px var(--shadow-color);
+  background: var(--surface-strong);
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.neo-illustration {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: contrast(110%);
+}
+
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  padding: 40px 0;
+}
+
+.stat-item {
+  text-align: center;
+  padding: 32px 24px;
+  background: var(--surface-strong);
+  border: 2px solid var(--line);
+  box-shadow: 6px 6px 0px var(--shadow-color);
+  border-radius: 12px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stat-item:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 8px 8px 0px var(--shadow-color);
+}
+
+.stat-item .stat-val {
+  font-size: 48px;
+  font-weight: 800;
+  color: var(--text);
+  line-height: 1;
+  margin-bottom: 8px;
+}
+
+.stat-item .stat-label {
+  font-size: 16px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.programs-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
 .article-content img {
   margin: 32px 0;
   border-radius: 8px;
@@ -707,6 +814,7 @@ label {
 }
 
 @media (max-width: 960px) {
+
   .hero__grid,
   .story-grid,
   .article-shell,
@@ -746,7 +854,7 @@ label {
     box-shadow: 4px 4px 0px var(--shadow-color);
     transition: transform 0.1s;
   }
-  
+
   .mobile-menu-toggle-btn:active {
     transform: translate(2px, 2px);
     box-shadow: 2px 2px 0px var(--shadow-color);
@@ -769,7 +877,7 @@ label {
     z-index: 100;
   }
 
-  .mobile-menu-toggle-checkbox:checked ~ .nav {
+  .mobile-menu-toggle-checkbox:checked ~ .header-nav-container .nav {
     right: 0;
     box-shadow: -8px 0px 0px rgba(0,0,0,0.1);
   }
@@ -777,7 +885,7 @@ label {
   .mobile-menu-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,0.5);
+    background: rgba(0, 0, 0, 0.5);
     backdrop-filter: blur(2px);
     z-index: 90;
     opacity: 0;
@@ -785,7 +893,7 @@ label {
     transition: opacity 0.3s ease;
   }
 
-  .mobile-menu-toggle-checkbox:checked ~ .mobile-menu-overlay {
+  .mobile-menu-toggle-checkbox:checked~.mobile-menu-overlay {
     opacity: 1;
     pointer-events: auto;
     display: block;
@@ -796,7 +904,8 @@ label {
     font-size: 16px;
     border: 2px solid var(--line);
     box-shadow: 4px 4px 0px var(--shadow-color);
-    background: var(--surface); /* Putih jika tidak aktif */
+    background: var(--surface);
+    /* Putih jika tidak aktif */
     color: var(--text);
     font-weight: 800;
     text-align: center;
@@ -804,7 +913,8 @@ label {
 
   .site-header .nav a:hover,
   .site-header .nav a.active {
-    background: var(--surface-strong); /* Kuning jika aktif */
+    background: var(--surface-strong);
+    /* Kuning jika aktif */
     transform: translate(-2px, -2px);
     box-shadow: 6px 6px 0px var(--shadow-color);
   }
@@ -828,7 +938,7 @@ label {
     margin-bottom: 6px;
     width: auto;
   }
-  
+
   .hero h1 {
     font-size: 28px;
     line-height: 1.1;
@@ -852,7 +962,8 @@ label {
     font-size: 32px;
   }
 
-  .btn, .btn-outline {
+  .btn,
+  .btn-outline {
     font-size: 14px;
     padding: 0 16px;
     min-height: 48px;
@@ -887,7 +998,244 @@ label {
    Mencegah desain membesar (oversized) saat pengguna Desktop menggunakan zoom 125% atau 150%
    Ini khusus ditargetkan untuk resolusi Windows Scaling atau Browser Zoom di layar lebar.
 */
-@media screen and (min-width: 960px) and (resolution: 1.1dppx) { html { zoom: 0.909; } }
-@media screen and (min-width: 960px) and (resolution: 1.25dppx) { html { zoom: 0.8; } }
-@media screen and (min-width: 960px) and (resolution: 1.5dppx) { html { zoom: 0.666; } }
-@media screen and (min-width: 960px) and (resolution: 1.75dppx) { html { zoom: 0.571; } }
+@media screen and (min-width: 960px) and (resolution: 1.1dppx) {
+  html {
+    zoom: 0.909;
+  }
+}
+
+@media screen and (min-width: 960px) and (resolution: 1.25dppx) {
+  html {
+    zoom: 0.8;
+  }
+}
+
+@media screen and (min-width: 960px) and (resolution: 1.5dppx) {
+  html {
+    zoom: 0.666;
+  }
+}
+
+@media screen and (min-width: 960px) and (resolution: 1.75dppx) {
+  html {
+    zoom: 0.571;
+  }
+}
+
+.btn-animated {
+  transition: all 0.3s ease;
+  display: inline-block;
+}
+
+.btn-animated:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  filter: brightness(1.1);
+}
+
+.btn-animated:active {
+  transform: translateY(0) scale(0.98);
+}
+
+/* --- Nordic Digital Inspired Layout (Neo Brutalism style) --- */
+
+.header-nav-container {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.btn-header {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 16px;
+  border-radius: 40px;
+  /* Nordic pill shape */
+  background: var(--surface);
+  color: var(--text);
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 14px;
+  border: 2px solid var(--line);
+  box-shadow: 2px 2px 0px var(--shadow-color);
+  transition: all 0.2s ease;
+}
+
+.btn-header:hover {
+  background: var(--surface-strong);
+  transform: translate(-2px, -2px);
+  box-shadow: 4px 4px 0px var(--shadow-color);
+}
+
+.hero-nordic {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 40px;
+  align-items: center;
+  padding: 60px 40px;
+  background: var(--surface);
+  border: var(--border-width) solid var(--line);
+  box-shadow: 12px 12px 0px var(--shadow-color);
+  margin-bottom: 40px;
+  margin-top: 20px;
+}
+
+.hero-nordic__content h1 {
+  font-size: clamp(42px, 5vw, 64px);
+  line-height: 1;
+  text-transform: uppercase;
+  font-weight: 800;
+  margin: 0 0 20px;
+  letter-spacing: -0.04em;
+}
+
+.hero-nordic__desc {
+  font-size: 18px;
+  line-height: 1.6;
+}
+
+.program-card {
+  padding: 30px 24px;
+  background: var(--surface);
+  text-align: center;
+}
+
+.about-nordic {
+  padding: 40px 0;
+}
+
+.about-nordic__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  align-items: start;
+}
+
+.about-nordic__image {
+  width: 100%;
+  height: 100%;
+  min-height: 400px;
+  border: 2px solid var(--line);
+  box-shadow: 8px 8px 0px var(--shadow-color);
+  background: var(--surface-strong);
+  overflow: hidden;
+}
+
+.about-nordic__content {
+  text-align: left;
+  padding: 20px 0;
+}
+
+.about-nordic__content h2 {
+  font-size: 40px;
+  margin-top: 0;
+  margin-bottom: 24px;
+  text-transform: uppercase;
+}
+
+.site-footer {
+  background: var(--text);
+  color: #fff;
+  border-top: 4px solid var(--line);
+  margin-top: 60px;
+}
+
+.site-footer .brand__title {
+  color: #fff;
+}
+
+.site-footer .brand__eyebrow {
+  color: #ccc;
+}
+
+.footer-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 40px;
+  padding: 80px 40px;
+  background: transparent;
+  border-top: none;
+}
+
+.footer-desc {
+  font-size: 16px;
+  font-weight: 500;
+  color: #e0e0e0;
+  max-width: 320px;
+  line-height: 1.6;
+}
+
+.footer-links strong,
+.footer-contact strong {
+  display: block;
+  font-size: 20px;
+  font-weight: 800;
+  margin-bottom: 24px;
+  text-transform: uppercase;
+  color: var(--surface-strong); /* Bright Yellow */
+  letter-spacing: 0.05em;
+}
+
+.nav-footer .nav {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.nav-footer .nav a {
+  border: none;
+  background: none;
+  box-shadow: none;
+  padding: 6px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
+  text-transform: none;
+  transition: transform 0.2s, color 0.2s;
+}
+
+.nav-footer .nav a:hover {
+  text-decoration: none;
+  transform: translateX(4px);
+  color: var(--accent);
+}
+
+.site-footer p {
+  margin: 0 0 12px;
+  color: #e0e0e0;
+}
+
+@media (max-width: 960px) {
+  .hero-nordic,
+  .about-nordic__grid {
+    grid-template-columns: 1fr;
+    padding: 30px 20px;
+  }
+
+  .hero-nordic__stats {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+
+  .stat-box {
+    text-align: left;
+    flex: 1;
+    min-width: 120px;
+  }
+
+  .programs-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .footer-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .programs-grid {
+    grid-template-columns: 1fr;
+  }
+}

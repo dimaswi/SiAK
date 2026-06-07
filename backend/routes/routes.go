@@ -31,7 +31,7 @@ func SetupRoutes(e *echo.Echo) {
 	api.POST("/public/ppdb/register", controllers.PublicRegisterPPDB)
 	api.POST("/public/ppdb/upload", controllers.PublicUploadPPDBDocument)
 	api.GET("/public/ppdb/status", controllers.PublicCheckPPDBStatus)
-	api.GET("/public/cms/pages/:key", controllers.PublicGetCMSPage)
+	api.GET("/public/site-config", controllers.PublicGetSiteConfig)
 	api.GET("/public/cms/posts", controllers.PublicGetCMSPosts)
 	api.GET("/public/cms/posts/:slug", controllers.PublicGetCMSPostBySlug)
 	api.GET("/public/cms/navigation", controllers.PublicGetCMSNavigation)
@@ -108,9 +108,8 @@ func SetupRoutes(e *echo.Echo) {
 	adminLike.PUT("/users/:id/password", controllers.UpdateUserPassword)
 
 	// ── CMS Internal routes ────────────────────────────────────
-	adminLike.GET("/cms/pages", controllers.GetCMSPages)
-	adminLike.POST("/cms/pages", controllers.UpsertCMSPage)
-	adminLike.DELETE("/cms/pages/:id", controllers.DeleteCMSPage)
+	adminLike.GET("/site-config", controllers.GetSiteConfig)
+	adminLike.PUT("/site-config", controllers.UpdateSiteConfig)
 	adminLike.GET("/cms/posts", controllers.GetCMSPosts)
 	adminLike.POST("/cms/posts", controllers.CreateCMSPost)
 	adminLike.PUT("/cms/posts/:id", controllers.UpdateCMSPost)

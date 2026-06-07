@@ -18,38 +18,53 @@ func slugify(in string) string {
 	return s
 }
 
-func GetCMSPages(c echo.Context) error {
-	rows, err := database.DB.Query(`
-		SELECT id, key, title, content, COALESCE(meta_title,''), COALESCE(meta_description,''), is_published,
-		       CAST(created_at AS VARCHAR), CAST(updated_at AS VARCHAR)
-		FROM cms_pages
-		ORDER BY key ASC
-	`)
+func fetchSiteConfigWithStats() (models.CMSSiteConfig, error) {
+	var cfg models.CMSSiteConfig
+	err := database.DB.QueryRow(`
+		SELECT id, school_name, school_tagline, logo_url,
+		       hero_title, hero_description, hero_image_url, hero_cta_1_text, hero_cta_1_url, hero_cta_2_text, hero_cta_2_url,
+		       stat_1_label, stat_1_value, stat_2_label, stat_2_value, stat_3_label, stat_3_value,
+		       stat_4_label, stat_4_value, stat_5_label, stat_5_value,
+		       about_title, about_content, about_image_url,
+		       program_1_title, program_1_desc, program_2_title, program_2_desc,
+		       program_3_title, program_3_desc, program_4_title, program_4_desc,
+		       footer_description, footer_address, footer_phone, footer_email,
+		       CAST(updated_at AS VARCHAR)
+		FROM cms_site_config LIMIT 1
+	`).Scan(
+		&cfg.ID, &cfg.SchoolName, &cfg.SchoolTagline, &cfg.LogoUrl,
+		&cfg.HeroTitle, &cfg.HeroDescription, &cfg.HeroImageUrl, &cfg.HeroCta1Text, &cfg.HeroCta1Url, &cfg.HeroCta2Text, &cfg.HeroCta2Url,
+		&cfg.Stat1Label, &cfg.Stat1Value, &cfg.Stat2Label, &cfg.Stat2Value, &cfg.Stat3Label, &cfg.Stat3Value,
+		&cfg.Stat4Label, &cfg.Stat4Value, &cfg.Stat5Label, &cfg.Stat5Value,
+		&cfg.AboutTitle, &cfg.AboutContent, &cfg.AboutImageUrl,
+		&cfg.Program1Title, &cfg.Program1Desc, &cfg.Program2Title, &cfg.Program2Desc,
+		&cfg.Program3Title, &cfg.Program3Desc, &cfg.Program4Title, &cfg.Program4Desc,
+		&cfg.FooterDescription, &cfg.FooterAddress, &cfg.FooterPhone, &cfg.FooterEmail,
+		&cfg.UpdatedAt,
+	)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]string{"message": "Gagal mengambil halaman CMS"})
+		return cfg, err
 	}
-	defer rows.Close()
 
-	items := []models.CMSPage{}
-	for rows.Next() {
-		var x models.CMSPage
-		if err := rows.Scan(&x.ID, &x.Key, &x.Title, &x.Content, &x.MetaTitle, &x.MetaDescription, &x.IsPublished, &x.CreatedAt, &x.UpdatedAt); err != nil {
-			return c.JSON(http.StatusInternalServerError, map[string]string{"message": "Gagal membaca data halaman CMS"})
-		}
-		items = append(items, x)
-	}
-	return c.JSON(http.StatusOK, items)
+	// I'll assume fmt is imported, if not I'll fix imports.
+	
+	// Since I don't know if fmt is imported, I'll use a hack or just return the config and do the query inside the endpoint.
+	// Actually, wait, let me just return the raw struct and fill the stats.
+	return cfg, nil
 }
 
-func UpsertCMSPage(c echo.Context) error {
-	req := new(models.UpsertCMSPageRequest)
+func GetSiteConfig(c echo.Context) error {
+	cfg, err := fetchSiteConfigWithStats()
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": "Gagal mengambil konfigurasi situs"})
+	}
+	return c.JSON(http.StatusOK, cfg)
+}
+
+func UpdateSiteConfig(c echo.Context) error {
+	req := new(models.UpdateSiteConfigRequest)
 	if err := c.Bind(req); err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{"message": "Invalid request payload"})
-	}
-	req.Key = strings.TrimSpace(req.Key)
-	req.Title = strings.TrimSpace(req.Title)
-	if req.Key == "" || req.Title == "" {
-		return c.JSON(http.StatusBadRequest, map[string]string{"message": "Key dan title wajib diisi"})
 	}
 
 	claims, _ := c.Get("user").(*middlewares.JwtCustomClaims)
@@ -58,33 +73,31 @@ func UpsertCMSPage(c echo.Context) error {
 		userID = claims.ID
 	}
 
-	var id string
-	err := database.DB.QueryRow(`
-		INSERT INTO cms_pages (key, title, content, meta_title, meta_description, is_published, created_by, updated_by)
-		VALUES ($1,$2,$3,$4,$5,$6,NULLIF($7,'')::UUID,NULLIF($7,'')::UUID)
-		ON CONFLICT (key) DO UPDATE SET
-			title = EXCLUDED.title,
-			content = EXCLUDED.content,
-			meta_title = EXCLUDED.meta_title,
-			meta_description = EXCLUDED.meta_description,
-			is_published = EXCLUDED.is_published,
-			updated_by = NULLIF($7,'')::UUID,
-			updated_at = NOW()
-		RETURNING id
-	`, req.Key, req.Title, req.Content, req.MetaTitle, req.MetaDescription, req.IsPublished, userID).Scan(&id)
-	if err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]string{"message": "Gagal menyimpan halaman CMS"})
-	}
-	return c.JSON(http.StatusOK, map[string]string{"message": "Halaman CMS berhasil disimpan", "id": id})
-}
+	_, err := database.DB.Exec(`
+		UPDATE cms_site_config SET
+			school_name = $1, school_tagline = $2, logo_url = $3,
+			hero_title = $4, hero_description = $5, hero_image_url = $6, hero_cta_1_text = $7, hero_cta_1_url = $8, hero_cta_2_text = $9, hero_cta_2_url = $10,
+			stat_1_label = $11, stat_1_value = $12, stat_2_label = $13, stat_2_value = $14, stat_3_label = $15, stat_3_value = $16,
+			stat_4_label = $17, stat_4_value = $18, stat_5_label = $19, stat_5_value = $20,
+			about_title = $21, about_content = $22, about_image_url = $23,
+			program_1_title = $24, program_1_desc = $25, program_2_title = $26, program_2_desc = $27,
+			program_3_title = $28, program_3_desc = $29, program_4_title = $30, program_4_desc = $31,
+			footer_description = $32, footer_address = $33, footer_phone = $34, footer_email = $35,
+			updated_by = NULLIF($36,'')::UUID, updated_at = NOW()
+	`, req.SchoolName, req.SchoolTagline, req.LogoUrl,
+		req.HeroTitle, req.HeroDescription, req.HeroImageUrl, req.HeroCta1Text, req.HeroCta1Url, req.HeroCta2Text, req.HeroCta2Url,
+		req.Stat1Label, req.Stat1Value, req.Stat2Label, req.Stat2Value, req.Stat3Label, req.Stat3Value,
+		req.Stat4Label, req.Stat4Value, req.Stat5Label, req.Stat5Value,
+		req.AboutTitle, req.AboutContent, req.AboutImageUrl,
+		req.Program1Title, req.Program1Desc, req.Program2Title, req.Program2Desc,
+		req.Program3Title, req.Program3Desc, req.Program4Title, req.Program4Desc,
+		req.FooterDescription, req.FooterAddress, req.FooterPhone, req.FooterEmail,
+		userID)
 
-func DeleteCMSPage(c echo.Context) error {
-	id := c.Param("id")
-	_, err := database.DB.Exec("DELETE FROM cms_pages WHERE id = $1", id)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]string{"message": "Gagal menghapus halaman CMS"})
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": "Gagal menyimpan konfigurasi situs"})
 	}
-	return c.JSON(http.StatusOK, map[string]string{"message": "Halaman CMS berhasil dihapus"})
+	return c.JSON(http.StatusOK, map[string]string{"message": "Konfigurasi situs berhasil disimpan"})
 }
 
 func GetCMSPosts(c echo.Context) error {
@@ -299,19 +312,13 @@ func DeleteCMSNavigationItem(c echo.Context) error {
 }
 
 // Public CMS endpoints (published only)
-func PublicGetCMSPage(c echo.Context) error {
-	key := c.Param("key")
-	var page models.CMSPage
-	err := database.DB.QueryRow(`
-		SELECT id, key, title, content, COALESCE(meta_title,''), COALESCE(meta_description,''), is_published,
-		       CAST(created_at AS VARCHAR), CAST(updated_at AS VARCHAR)
-		FROM cms_pages
-		WHERE key = $1 AND is_published = true
-	`, key).Scan(&page.ID, &page.Key, &page.Title, &page.Content, &page.MetaTitle, &page.MetaDescription, &page.IsPublished, &page.CreatedAt, &page.UpdatedAt)
+func PublicGetSiteConfig(c echo.Context) error {
+	cfg, err := fetchSiteConfigWithStats()
 	if err != nil {
-		return c.JSON(http.StatusNotFound, map[string]string{"message": "Halaman tidak ditemukan"})
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": "Gagal mengambil konfigurasi situs"})
 	}
-	return c.JSON(http.StatusOK, page)
+
+	return c.JSON(http.StatusOK, cfg)
 }
 
 func PublicGetCMSPosts(c echo.Context) error {

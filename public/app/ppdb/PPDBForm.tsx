@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:8080/api";
 
@@ -136,9 +137,11 @@ export default function PPDBForm({
             {heroTitle}
           </h1>
           <div className="muted" dangerouslySetInnerHTML={{ __html: heroContent }} />
-          <div className="tag-row">
+          <div className="tag-row" style={{ marginTop: 20 }}>
             <span className="tag">Step {Math.min(step, 5)} of 5</span>
-            <span className="tag">Registrasi Online Lengkap</span>
+            <Link href="/ppdb/status" className="tag btn-animated" style={{ textDecoration: 'none', background: 'var(--brand)', color: '#fff', border: 'none', cursor: 'pointer' }}>
+              🔍 Cek Status Pendaftaran
+            </Link>
           </div>
         </div>
 

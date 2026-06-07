@@ -49,10 +49,9 @@ func PublicRegisterPPDB(c echo.Context) error {
 }
 
 func PublicCheckPPDBStatus(c echo.Context) error {
-	regNo := strings.TrimSpace(c.QueryParam("registration_no"))
-	dob := strings.TrimSpace(c.QueryParam("birth_date"))
-	if regNo == "" || dob == "" {
-		return c.JSON(http.StatusBadRequest, map[string]string{"message": "registration_no dan birth_date wajib diisi"})
+	nisn := strings.TrimSpace(c.QueryParam("nisn"))
+	if nisn == "" {
+		return c.JSON(http.StatusBadRequest, map[string]string{"message": "NISN wajib diisi"})
 	}
 
 	var item models.PPDBApplication
@@ -65,8 +64,8 @@ func PublicCheckPPDBStatus(c echo.Context) error {
 		       status::VARCHAR, COALESCE(notes_panitia,''), COALESCE(converted_student_id::VARCHAR,''),
 		       CAST(created_at AS VARCHAR), CAST(updated_at AS VARCHAR)
 		FROM ppdb_applications
-		WHERE registration_no = $1 AND birth_date = $2::DATE
-	`, regNo, dob).Scan(
+		WHERE nisn = $1
+	`, nisn).Scan(
 		&item.ID, &item.RegistrationNo, &item.FullName, &item.NISN, &item.BirthDate,
 		&item.Gender, &item.Religion, &item.PlaceOfBirth, &item.Address, &item.PreviousSchool,
 		&item.ParentPhone, &item.FatherName, &item.FatherOccupation, &item.FatherPhone,
