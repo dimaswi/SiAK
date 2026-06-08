@@ -98,7 +98,7 @@ services:
     volumes:
       - ./deploy/nginx/default.conf.template:/etc/nginx/templates/default.conf.template:ro
     depends_on:
-      - siak_fronted
+      - siak_frontend
       - siak_public
       - siak_backend
     networks:
