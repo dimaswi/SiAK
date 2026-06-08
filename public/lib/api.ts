@@ -3,28 +3,30 @@ const INTERNAL_API_BASE = process.env.INTERNAL_API_BASE || "http://localhost:808
 const API_BASE = typeof window === "undefined" ? INTERNAL_API_BASE : PUBLIC_API_BASE;
 const ASSET_BASE = (process.env.NEXT_PUBLIC_ASSET_BASE || PUBLIC_API_BASE.replace(/\/api$/, "")).replace(/\/$/, "");
 
+async function safeFetchJson<T>(path: string, fallback: T, init?: RequestInit): Promise<T> {
+  try {
+    const res = await fetch(`${API_BASE}${path}`, init);
+    if (!res.ok) return fallback;
+    return (await res.json()) as T;
+  } catch {
+    return fallback;
+  }
+}
+
 export async function fetchSiteConfig() {
-  const res = await fetch(`${API_BASE}/public/site-config`, { next: { revalidate: 60 } });
-  if (!res.ok) return null;
-  return res.json();
+  return safeFetchJson(`/public/site-config`, null, { next: { revalidate: 60 } });
 }
 
 export async function fetchPublicPosts() {
-  const res = await fetch(`${API_BASE}/public/cms/posts`, { next: { revalidate: 60 } });
-  if (!res.ok) return [];
-  return res.json();
+  return safeFetchJson(`/public/cms/posts`, [], { next: { revalidate: 60 } });
 }
 
 export async function fetchPublicPostBySlug(slug: string) {
-  const res = await fetch(`${API_BASE}/public/cms/posts/${slug}`, { next: { revalidate: 60 } });
-  if (!res.ok) return null;
-  return res.json();
+  return safeFetchJson(`/public/cms/posts/${slug}`, null, { next: { revalidate: 60 } });
 }
 
 export async function fetchNavigation(location = "header") {
-  const res = await fetch(`${API_BASE}/public/cms/navigation?location=${location}`, { next: { revalidate: 60 } });
-  if (!res.ok) return [];
-  return res.json();
+  return safeFetchJson(`/public/cms/navigation?location=${location}`, [], { next: { revalidate: 60 } });
 }
 
 export function resolveAssetUrl(path?: string | null) {
