@@ -4,9 +4,9 @@ import { Link, useParams } from "react-router-dom"
 import PageShell from "../../../components/PageShell"
 import { Button } from "../../../components/ui/button"
 import { Badge } from "../../../components/ui/badge"
+import { normalizeRichTextHtml, resolveAssetUrl } from "@/lib/runtime"
 
 const API = "http://localhost:8080/api"
-const ASSET_BASE = "http://localhost:8080"
 
 export default function CMSBlogShow() {
   const { id } = useParams()
@@ -43,9 +43,9 @@ export default function CMSBlogShow() {
             <p className="text-xs text-slate-400 font-mono">/{item.slug}</p>
           </div>
           {item.cover_image_url ? (
-            <img src={`${ASSET_BASE}${item.cover_image_url}`} alt="cover" className="h-52 w-full rounded-md border border-slate-200 object-cover shadow-sm" />
+            <img src={resolveAssetUrl(item.cover_image_url)} alt="cover" className="h-52 w-full rounded-md border border-slate-200 object-cover shadow-sm" />
           ) : null}
-          <div className="rounded-md border border-slate-200 p-4 bg-slate-50/50 whitespace-pre-wrap text-sm text-slate-700 leading-relaxed" dangerouslySetInnerHTML={{ __html: item.content }} />
+          <div className="rounded-md border border-slate-200 p-4 bg-slate-50/50 whitespace-pre-wrap text-sm text-slate-700 leading-relaxed" dangerouslySetInnerHTML={{ __html: normalizeRichTextHtml(item.content) }} />
         </div>
       </div>
     </PageShell>

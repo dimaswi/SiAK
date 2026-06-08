@@ -12,6 +12,7 @@ import { Skeleton } from "../../components/ui/skeleton"
 import { DataTable } from "../../components/DataTable"
 import { sppPaymentColumns, type SppPayment } from "../spp/columns"
 import { useAuth } from "../../context/AuthContext"
+import { resolveAssetUrl } from "@/lib/runtime"
 
 interface StudentDetail {
   id: string
@@ -165,7 +166,7 @@ export default function StudentShow() {
           <div className="bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col sm:flex-row items-center sm:items-start p-6 gap-6 w-full">
             <div className="h-24 w-24 rounded-full bg-muted border-4 border-background shadow-sm flex items-center justify-center shrink-0 overflow-hidden">
               {student.photo_url ? (
-                <img src={`http://localhost:8080${student.photo_url}`} alt={student.full_name} className="h-full w-full object-cover" />
+                <img src={resolveAssetUrl(student.photo_url)} alt={student.full_name} className="h-full w-full object-cover" />
               ) : (
                 <User className="h-10 w-10 text-muted-foreground" />
               )}

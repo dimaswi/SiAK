@@ -47,16 +47,14 @@ function DashboardLayout() {
 
 import { useEffect } from 'react';
 import axios from 'axios';
+import { resolveAssetUrl } from '@/lib/runtime';
 
 function App() {
   useEffect(() => {
     axios.get("http://localhost:8080/api/site-config")
       .then(res => {
         if (res.data?.logo_url) {
-          let url = res.data.logo_url;
-          if (!url.startsWith('http')) {
-            url = `http://localhost:8080${url}`;
-          }
+          const url = resolveAssetUrl(res.data.logo_url);
           const link = document.querySelector("link[rel~='icon']") as HTMLLinkElement;
           if (link) {
             link.href = url;

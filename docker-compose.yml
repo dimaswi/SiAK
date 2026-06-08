@@ -1,36 +1,112 @@
 version: '3.8'
 
 services:
-  postgres:
+  siak_database:
     image: postgres:16-alpine
-    container_name: siak_db
-    restart: always
+    container_name: siak_database
+    restart: unless-stopped
     environment:
-      POSTGRES_USER: siak_user
-      POSTGRES_PASSWORD: siak_password
-      POSTGRES_DB: siak_db
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
     ports:
-      - "5432:5432"
+      - "${DATABASE_PORT:-5434}:${DATABASE_CONTAINER_PORT:-5432}"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./backend/db/migrations:/docker-entrypoint-initdb.d
+      - ./backend/db/migrations:/docker-entrypoint-initdb.d:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U siak_user -d siak_db"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - siak_network
 
-  pgadmin:
-    image: dpage/pgadmin4:latest
-    container_name: siak_pgadmin
-    restart: always
+  siak_backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: siak_backend
+    restart: unless-stopped
+    env_file:
+      - ./.env
     environment:
-      PGADMIN_DEFAULT_EMAIL: admin@siak.sch.id
-      PGADMIN_DEFAULT_PASSWORD: siak_admin
+      APP_PORT: ${BACKEND_CONTAINER_PORT:-8080}
+      DB_HOST: siak_database
+      DB_PORT: ${DATABASE_CONTAINER_PORT:-5432}
     ports:
-      - "5050:80"
+      - "${APP_PORT:-8086}:${BACKEND_CONTAINER_PORT:-8080}"
+    volumes:
+      - ./backend/uploads:/app/backend/uploads
     depends_on:
-      - postgres
+      siak_database:
+        condition: service_healthy
+    networks:
+      - siak_network
+
+  siak_fronted:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE: ${VITE_API_BASE:-/api}
+        VITE_ASSET_BASE: ${VITE_ASSET_BASE:-}
+    container_name: siak_fronted
+    restart: unless-stopped
+    ports:
+      - "${ADMIN_PORT:-5176}:${ADMIN_CONTAINER_PORT:-80}"
+    depends_on:
+      - siak_backend
+    networks:
+      - siak_network
+
+  siak_public:
+    build:
+      context: ./public
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_BASE: ${NEXT_PUBLIC_API_BASE:-/api}
+        NEXT_PUBLIC_ASSET_BASE: ${NEXT_PUBLIC_ASSET_BASE:-}
+        INTERNAL_API_BASE: ${INTERNAL_API_BASE:-http://siak_backend:8080/api}
+        INTERNAL_BACKEND_ORIGIN: ${INTERNAL_BACKEND_ORIGIN:-http://siak_backend:8080}
+    container_name: siak_public
+    restart: unless-stopped
+    environment:
+      NEXT_PUBLIC_API_BASE: ${NEXT_PUBLIC_API_BASE:-/api}
+      NEXT_PUBLIC_ASSET_BASE: ${NEXT_PUBLIC_ASSET_BASE:-}
+      INTERNAL_API_BASE: ${INTERNAL_API_BASE:-http://siak_backend:8080/api}
+      INTERNAL_BACKEND_ORIGIN: ${INTERNAL_BACKEND_ORIGIN:-http://siak_backend:8080}
+    ports:
+      - "${PUBLIC_PORT:-3001}:${PUBLIC_CONTAINER_PORT:-3000}"
+    depends_on:
+      - siak_backend
+    networks:
+      - siak_network
+
+  siak_proxy:
+    image: nginx:1.27-alpine
+    container_name: siak_proxy
+    restart: unless-stopped
+    environment:
+      ADMIN_DOMAIN: ${ADMIN_DOMAIN:-siak.dimaswysnu.com}
+      PUBLIC_DOMAIN: ${PUBLIC_DOMAIN:-sekolah.dimaswysnu.com}
+      ADMIN_CONTAINER_PORT: ${ADMIN_CONTAINER_PORT:-80}
+      PUBLIC_CONTAINER_PORT: ${PUBLIC_CONTAINER_PORT:-3000}
+      BACKEND_CONTAINER_PORT: ${BACKEND_CONTAINER_PORT:-8080}
+    ports:
+      - "${NGINX_PORT:-80}:80"
+    volumes:
+      - ./deploy/nginx/default.conf.template:/etc/nginx/templates/default.conf.template:ro
+    depends_on:
+      - siak_fronted
+      - siak_public
+      - siak_backend
+    networks:
+      - siak_network
 
 volumes:
   postgres_data:
+
+networks:
+  siak_network:
+    driver: bridge

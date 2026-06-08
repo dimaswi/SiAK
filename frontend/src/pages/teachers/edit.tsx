@@ -8,6 +8,7 @@ import { Button } from "../../components/ui/button"
 import { Input } from "../../components/ui/input"
 import { Label } from "../../components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select"
+import { resolveAssetUrl } from "@/lib/runtime"
 
 
 const API = "http://localhost:8080/api"
@@ -78,7 +79,7 @@ export default function TeacherEdit() {
       const data = res.data
       if (data.birth_date) data.birth_date = data.birth_date.split("T")[0]
       if (data.join_date) data.join_date = data.join_date.split("T")[0]
-      if (data.photo_url) setPhotoPreview(`http://localhost:8080${data.photo_url}`)
+      if (data.photo_url) setPhotoPreview(resolveAssetUrl(data.photo_url))
       setFormData(prev => ({ ...prev, ...data }))
     }).catch(() => {
       setError("Guru tidak ditemukan.")

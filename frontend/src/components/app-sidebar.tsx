@@ -29,6 +29,7 @@ import { useAuth } from "../context/AuthContext"
 
 import { useEffect, useState } from "react"
 import axios from "axios"
+import { resolveAssetUrl } from "@/lib/runtime"
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const location = useLocation()
@@ -42,11 +43,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     axios.get("http://localhost:8080/api/site-config")
       .then(res => {
         if (res.data?.logo_url) {
-          let url = res.data.logo_url
-          if (!url.startsWith('http')) {
-            url = `http://localhost:8080${url}`
-          }
-          setLogoUrl(url)
+          setLogoUrl(resolveAssetUrl(res.data.logo_url))
         }
         if (res.data?.school_name) {
           setSchoolName(res.data.school_name)

@@ -6,6 +6,7 @@ import { Input } from "../../components/ui/input"
 import { Button } from "../../components/ui/button"
 import { Label } from "../../components/ui/label"
 import { useAppDialog } from "../../context/AppDialogContext"
+import { resolveAssetUrl } from "@/lib/runtime"
 
 const API = "http://localhost:8080/api"
 
@@ -196,12 +197,12 @@ export default function PPDBEdit() {
               <div className="border border-dashed border-slate-300 rounded-lg p-5 space-y-3">
                 <Label className="text-slate-700 block">Kartu Keluarga (KK)</Label>
                 <input type="file" accept=".pdf,image/*" onChange={(e) => handleFileUpload(e, "document_kk")} disabled={isUploading} className="text-sm w-full" />
-                {formData.document_kk && <p className="text-sm text-emerald-600 font-medium">✓ File terupload: <a href={`http://localhost:8080${formData.document_kk}`} target="_blank" rel="noreferrer" className="underline">Lihat</a></p>}
+                {formData.document_kk && <p className="text-sm text-emerald-600 font-medium">✓ File terupload: <a href={resolveAssetUrl(formData.document_kk)} target="_blank" rel="noreferrer" className="underline">Lihat</a></p>}
               </div>
               <div className="border border-dashed border-slate-300 rounded-lg p-5 space-y-3">
                 <Label className="text-slate-700 block">Akte Kelahiran</Label>
                 <input type="file" accept=".pdf,image/*" onChange={(e) => handleFileUpload(e, "document_akta")} disabled={isUploading} className="text-sm w-full" />
-                {formData.document_akta && <p className="text-sm text-emerald-600 font-medium">✓ File terupload: <a href={`http://localhost:8080${formData.document_akta}`} target="_blank" rel="noreferrer" className="underline">Lihat</a></p>}
+                {formData.document_akta && <p className="text-sm text-emerald-600 font-medium">✓ File terupload: <a href={resolveAssetUrl(formData.document_akta)} target="_blank" rel="noreferrer" className="underline">Lihat</a></p>}
               </div>
             </div>
           </div>

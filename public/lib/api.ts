@@ -1,5 +1,7 @@
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:8080/api";
-const ASSET_BASE = API_BASE.replace(/\/api$/, "");
+const PUBLIC_API_BASE = process.env.NEXT_PUBLIC_API_BASE || "/api";
+const INTERNAL_API_BASE = process.env.INTERNAL_API_BASE || "http://localhost:8080/api";
+const API_BASE = typeof window === "undefined" ? INTERNAL_API_BASE : PUBLIC_API_BASE;
+const ASSET_BASE = (process.env.NEXT_PUBLIC_ASSET_BASE || PUBLIC_API_BASE.replace(/\/api$/, "")).replace(/\/$/, "");
 
 export async function fetchSiteConfig() {
   const res = await fetch(`${API_BASE}/public/site-config`, { next: { revalidate: 60 } });

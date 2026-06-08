@@ -6,6 +6,7 @@ import { Button } from "../../components/ui/button"
 import { Input } from "../../components/ui/input"
 import { Label } from "../../components/ui/label"
 import { useAppDialog } from "../../context/AppDialogContext"
+import { resolveAssetUrl } from "@/lib/runtime"
 
 const API = "http://localhost:8080/api"
 
@@ -207,7 +208,7 @@ export default function PPDBShow() {
                     <div key={label} className="border border-dashed border-slate-200 rounded-lg p-4 text-center">
                       <p className="text-sm font-semibold text-slate-700 mb-2">{label}</p>
                       {url ? (
-                        <a href={`http://localhost:8080${url}`} target="_blank" rel="noreferrer" className="text-sm text-blue-600 hover:underline font-medium px-3 py-1.5 bg-blue-50 rounded-md inline-block">
+                        <a href={resolveAssetUrl(url)} target="_blank" rel="noreferrer" className="text-sm text-blue-600 hover:underline font-medium px-3 py-1.5 bg-blue-50 rounded-md inline-block">
                           Buka Dokumen
                         </a>
                       ) : (

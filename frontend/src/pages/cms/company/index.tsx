@@ -7,6 +7,7 @@ import { Input } from "../../../components/ui/input"
 import { Label } from "../../../components/ui/label"
 import { Textarea } from "../../../components/ui/textarea"
 import { Loader2 } from "lucide-react"
+import { resolveAssetUrl } from "@/lib/runtime"
 
 const API = "http://localhost:8080/api"
 
@@ -111,7 +112,7 @@ export default function CMSSiteConfig() {
                 <Input name="logo_url" value={form.logo_url} onChange={handleChange} placeholder="https://..." className="flex-1" />
                 <Input type="file" accept="image/*" onChange={(e) => handleUploadImage(e, "logo_url")} className="w-[300px]" />
               </div>
-              {form.logo_url && <img src={form.logo_url.startsWith('http') ? form.logo_url : `http://localhost:8080${form.logo_url}`} alt="Logo" className="mt-2 h-16 object-contain" />}
+              {form.logo_url && <img src={resolveAssetUrl(form.logo_url)} alt="Logo" className="mt-2 h-16 object-contain" />}
             </div>
           </div>
         </section>
@@ -127,7 +128,7 @@ export default function CMSSiteConfig() {
               <Input name="hero_image_url" value={form.hero_image_url} onChange={handleChange} placeholder="https://..." className="flex-1" />
               <Input type="file" accept="image/*" onChange={(e) => handleUploadImage(e, "hero_image_url")} className="w-[300px]" />
             </div>
-            {form.hero_image_url && <img src={form.hero_image_url.startsWith('http') ? form.hero_image_url : `http://localhost:8080${form.hero_image_url}`} alt="Hero" className="mt-2 h-32 object-cover rounded-md" />}
+            {form.hero_image_url && <img src={resolveAssetUrl(form.hero_image_url)} alt="Hero" className="mt-2 h-32 object-cover rounded-md" />}
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div><Label>Teks Tombol CTA 1</Label><Input name="hero_cta_1_text" value={form.hero_cta_1_text} onChange={handleChange} /></div>
@@ -170,7 +171,7 @@ export default function CMSSiteConfig() {
             </div>
             {form.about_image_url && (
               <div className="mt-2 w-48 aspect-video relative rounded-md overflow-hidden border">
-                <img src={form.about_image_url.startsWith('http') ? form.about_image_url : `http://localhost:8080${form.about_image_url}`} alt="About Image Preview" className="object-cover w-full h-full" />
+                <img src={resolveAssetUrl(form.about_image_url)} alt="About Image Preview" className="object-cover w-full h-full" />
               </div>
             )}
           </div>

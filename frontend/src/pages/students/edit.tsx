@@ -9,6 +9,7 @@ import { Input } from "../../components/ui/input"
 import { Label } from "../../components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select"
 import { useAuth } from "../../context/AuthContext"
+import { resolveAssetUrl } from "@/lib/runtime"
 
 const API = "http://localhost:8080/api"
 
@@ -77,7 +78,7 @@ export default function StudentEdit() {
       data.birth_date = stripTime(data.birth_date)
       data.enrollment_date = stripTime(data.enrollment_date)
       data.exit_date = stripTime(data.exit_date)
-      if (data.photo_url) setPhotoPreview(`http://localhost:8080${data.photo_url}`)
+      if (data.photo_url) setPhotoPreview(resolveAssetUrl(data.photo_url))
       setFormData(prev => ({ ...prev, ...data }))
     }).catch(() => { setError("Siswa tidak ditemukan."); navigate(backHref) }).finally(() => setIsLoading(false))
   }, [id, navigate, backHref])

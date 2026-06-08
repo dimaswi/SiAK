@@ -9,9 +9,9 @@ import { Label } from "../../../components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../components/ui/select"
 import { useAppDialog } from "../../../context/AppDialogContext"
 import JoditEditor from "jodit-react"
+import { resolveAssetUrl } from "@/lib/runtime"
 
 const API = "http://localhost:8080/api"
-const ASSET_BASE = "http://localhost:8080"
 
 export default function CMSBlogEdit() {
   const { id } = useParams()
@@ -52,7 +52,7 @@ export default function CMSBlogEdit() {
     setUploadingInline(true)
     try {
       const path = await uploadImage(f)
-      setForm((p) => ({ ...p, content: `${p.content}\n<img src="${ASSET_BASE}${path}" alt="${f.name}" />` }))
+      setForm((p) => ({ ...p, content: `${p.content}\n<img src="${path}" alt="${f.name}" />` }))
       await dialog.alert("Gambar berhasil diupload dan ditambahkan ke content")
     } catch (err: any) {
       await dialog.alert(err.response?.data?.message || "Upload gambar konten gagal")
@@ -171,7 +171,7 @@ export default function CMSBlogEdit() {
                 <Label>Cover Image URL</Label>
                 <Input placeholder="/uploads/cms/..." value={form.cover_image_url} onChange={(e) => setForm((p) => ({ ...p, cover_image_url: e.target.value }))} />
               </div>
-              {form.cover_image_url ? <img src={`${ASSET_BASE}${form.cover_image_url}`} alt="cover preview" className="h-44 w-full rounded-md border border-slate-200 object-cover" /> : <div className="flex h-44 items-center justify-center rounded-md border border-dashed border-slate-200 text-sm text-slate-400 bg-slate-50">Preview cover akan tampil di sini</div>}
+              {form.cover_image_url ? <img src={resolveAssetUrl(form.cover_image_url)} alt="cover preview" className="h-44 w-full rounded-md border border-slate-200 object-cover" /> : <div className="flex h-44 items-center justify-center rounded-md border border-dashed border-slate-200 text-sm text-slate-400 bg-slate-50">Preview cover akan tampil di sini</div>}
               <div className="space-y-1">
                 <Input type="file" accept="image/*" onChange={onUploadCover} />
                 <p className="text-xs text-slate-400">{uploadingCover ? "Sedang upload cover..." : "Upload cover image untuk mengisi field otomatis."}</p>

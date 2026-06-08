@@ -11,7 +11,6 @@ import { useAppDialog } from "../../../context/AppDialogContext"
 import JoditEditor from "jodit-react"
 
 const API = "http://localhost:8080/api"
-const ASSET_BASE = "http://localhost:8080"
 const pageOptions = [
   {
     group: "Pengaturan Global (Semua Halaman)",
@@ -93,7 +92,7 @@ export default function CMSCompanyCreate() {
     setUploading(true)
     try {
       const path = await uploadImage(f)
-      const imgHtml = `<img src="${ASSET_BASE}${path}" alt="Uploaded image" style="max-width: 100%; border-radius: 0;" />`
+      const imgHtml = `<img src="${path}" alt="Uploaded image" style="max-width: 100%; border-radius: 0;" />`
       if (form.key === "global-brand") {
         setForm((p) => ({ ...p, content: imgHtml }))
       } else {
