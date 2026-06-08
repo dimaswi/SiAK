@@ -46,7 +46,7 @@ export default function Breadcrumbs() {
         to="/"
         className="flex items-center text-muted-foreground hover:text-foreground transition-colors"
       >
-        <Home className="h-3.5 w-3.5" />
+        <Home className="h-4 w-4" />
       </Link>
 
       {crumbs.map((crumb, idx) => {
