@@ -14,19 +14,19 @@ async function safeFetchJson<T>(path: string, fallback: T, init?: RequestInit): 
 }
 
 export async function fetchSiteConfig() {
-  return safeFetchJson(`/public/site-config`, null, { next: { revalidate: 60 } });
+  return safeFetchJson<any>(`/public/site-config`, null, { next: { revalidate: 60 } });
 }
 
 export async function fetchPublicPosts() {
-  return safeFetchJson(`/public/cms/posts`, [], { next: { revalidate: 60 } });
+  return safeFetchJson<any[]>(`/public/cms/posts`, [], { next: { revalidate: 60 } });
 }
 
 export async function fetchPublicPostBySlug(slug: string) {
-  return safeFetchJson(`/public/cms/posts/${slug}`, null, { next: { revalidate: 60 } });
+  return safeFetchJson<any>(`/public/cms/posts/${slug}`, null, { next: { revalidate: 60 } });
 }
 
 export async function fetchNavigation(location = "header") {
-  return safeFetchJson(`/public/cms/navigation?location=${location}`, [], { next: { revalidate: 60 } });
+  return safeFetchJson<any[]>(`/public/cms/navigation?location=${location}`, [], { next: { revalidate: 60 } });
 }
 
 export function resolveAssetUrl(path?: string | null) {
