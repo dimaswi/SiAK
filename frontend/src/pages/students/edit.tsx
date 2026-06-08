@@ -10,6 +10,7 @@ import { Label } from "../../components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select"
 import { useAuth } from "../../context/AuthContext"
 import { resolveAssetUrl } from "@/lib/runtime"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 const API = "http://localhost:8080/api"
 
@@ -23,6 +24,10 @@ const educationLevels = [
   { value: "s2", label: "S2" }, { value: "s3", label: "S3" },
   { value: "tidak_sekolah", label: "Tidak Bersekolah" },
 ]
+const schoolStatusOptions = ["Negeri", "Swasta"]
+const achievementLevels = ["Tingkat Sekolah", "Tingkat Kecamatan", "Tingkat Kabupaten/Kota", "Tingkat Provinsi", "Tingkat Nasional", "Tingkat Internasional"]
+const scholarshipStatusOptions = ["Aktif", "Tidak Aktif"]
+const scholarshipSources = ["Pemerintah Pusat", "Pemerintah Daerah", "Sekolah", "Swasta", "Lainnya"]
 
 function FormSection({ title, description, children }: { title: string; description?: string; children: React.ReactNode }) {
   return (
@@ -55,19 +60,35 @@ export default function StudentEdit() {
   const [photoPreview, setPhotoPreview] = useState<string | null>(null)
   const [photoFile, setPhotoFile] = useState<File | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  
   const [formData, setFormData] = useState<Record<string, any>>({
-    nis: "", nisn: "", full_name: "", gender: "L",
+    nis: "", nism: "", nisn: "", nik: "", full_name: "", gender: "L",
     birth_place: "", birth_date: "", religion: "", nationality: "WNI",
-    birth_certificate_no: "", kk_number: "", pip_number: "", pip_reason: "",
+    birth_certificate_no: "", kk_number: "",
+    
+    kks_number: "", kps_number: "", kip_number: "", pkh_number: "", kis_number: "",
+    is_pip_receiver: false, pip_number: "", pip_reason: "", pip_period: "",
+    
     child_order: 0, num_siblings: 0, living_with: "", transportation: "", special_needs: "",
+    hobby: "", ambition: "",
+    
     address: "", rt_rw: "", village: "", district: "", city: "", province: "", postal_code: "",
     phone: "", enrollment_date: "",
-    father_name: "", father_nik: "", father_birth_year: 0,
+    
+    class_absent_number: "", class_rank: 0,
+    
+    achievement_field: "", achievement_level: "", achievement_rank: "", achievement_year: 0,
+    scholarship_status: "", scholarship_source: "", scholarship_type: "", scholarship_duration_months: 0, scholarship_amount: 0,
+    
+    previous_school_type: "", previous_school_status: "", previous_school_city: "",
+    
+    father_name: "", father_nik: "", father_birth_year: 0, father_birth_date: "",
     father_education: "", father_occupation: "", father_income: 0, father_is_alive: true,
-    mother_name: "", mother_nik: "", mother_birth_year: 0,
+    mother_name: "", mother_nik: "", mother_birth_year: 0, mother_birth_date: "",
     mother_education: "", mother_occupation: "", mother_income: 0, mother_is_alive: true,
     parent_name: "", parent_phone: "",
     guardian_name: "", guardian_nik: "", guardian_phone: "", guardian_occupation: "", guardian_relation: "",
+    
     exit_type: "", exit_date: "", exit_reason: "",
   })
 
@@ -78,6 +99,8 @@ export default function StudentEdit() {
       data.birth_date = stripTime(data.birth_date)
       data.enrollment_date = stripTime(data.enrollment_date)
       data.exit_date = stripTime(data.exit_date)
+      data.father_birth_date = stripTime(data.father_birth_date)
+      data.mother_birth_date = stripTime(data.mother_birth_date)
       if (data.photo_url) setPhotoPreview(resolveAssetUrl(data.photo_url))
       setFormData(prev => ({ ...prev, ...data }))
     }).catch(() => { setError("Siswa tidak ditemukan."); navigate(backHref) }).finally(() => setIsLoading(false))
@@ -128,10 +151,12 @@ export default function StudentEdit() {
         {error && <div className="rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">{error}</div>}
         <form id="student-form" onSubmit={handleSubmit} className="flex flex-col flex-1 h-full relative">
           <Tabs defaultValue="profil" className="w-full flex-1 flex flex-col gap-6">
-            <div className="border-b px-2">
-              <TabsList className="bg-transparent h-12 p-0 w-full justify-start overflow-x-auto rounded-none border-b-0 gap-6">
+            <div className="border-b px-2 overflow-x-auto">
+              <TabsList className="bg-transparent h-12 p-0 justify-start rounded-none border-b-0 gap-6 w-max min-w-full">
                 <TabsTrigger value="profil" className="data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none rounded-none px-2">Profil & Identitas</TabsTrigger>
                 <TabsTrigger value="sosial" className="data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none rounded-none px-2">Sosial & Alamat</TabsTrigger>
+                <TabsTrigger value="akademik" className="data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none rounded-none px-2">Akademik & Sekolah</TabsTrigger>
+                <TabsTrigger value="bantuan" className="data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none rounded-none px-2">Bantuan & Prestasi</TabsTrigger>
                 <TabsTrigger value="keluarga" className="data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none rounded-none px-2">Data Orang Tua & Wali</TabsTrigger>
               </TabsList>
             </div>
@@ -158,7 +183,9 @@ export default function StudentEdit() {
 
                 <FormSection title="Identitas Akademik" description="NIS digunakan sebagai username login siswa.">
                   <Field label="NIS" required><Input name="nis" required value={formData.nis} onChange={handleChange} /></Field>
-                  <Field label="NISN"><Input name="nisn" value={formData.nisn} onChange={handleChange} /></Field>
+                  <Field label="NISM"><Input name="nism" placeholder="Nomor Induk Siswa Madrasah" value={formData.nism} onChange={handleChange} /></Field>
+                  <Field label="NISN"><Input name="nisn" placeholder="Nomor Induk Siswa Nasional" value={formData.nisn} onChange={handleChange} /></Field>
+                  <Field label="NIK"><Input name="nik" placeholder="16 Digit NIK KTP Siswa" value={formData.nik} onChange={handleChange} /></Field>
                 </FormSection>
 
                 <FormSection title="Identitas Pribadi">
@@ -179,14 +206,11 @@ export default function StudentEdit() {
                   <Field label="Tanggal Lahir"><Input name="birth_date" type="date" value={formData.birth_date} onChange={handleChange} /></Field>
                   <Field label="Kewarganegaraan"><Input name="nationality" value={formData.nationality} onChange={handleChange} /></Field>
                   <Field label="Telepon Siswa"><Input name="phone" value={formData.phone} onChange={handleChange} /></Field>
-                  <Field label="Tanggal Masuk"><Input name="enrollment_date" type="date" value={formData.enrollment_date} onChange={handleChange} /></Field>
                 </FormSection>
 
                 <FormSection title="Dokumen Identitas">
                   <Field label="No. Akta Kelahiran"><Input name="birth_certificate_no" value={formData.birth_certificate_no} onChange={handleChange} /></Field>
-                  <Field label="No. Kartu Keluarga"><Input name="kk_number" value={formData.kk_number} onChange={handleChange} /></Field>
-                  <Field label="No. PIP / KIP"><Input name="pip_number" value={formData.pip_number} onChange={handleChange} /></Field>
-                  <Field label="Alasan PIP"><Input name="pip_reason" value={formData.pip_reason} onChange={handleChange} /></Field>
+                  <Field label="No. Kartu Keluarga (KK)"><Input name="kk_number" value={formData.kk_number} onChange={handleChange} /></Field>
                 </FormSection>
 
                 <FormSection title="Status Keluar (Isi jika siswa keluar)">
@@ -209,7 +233,7 @@ export default function StudentEdit() {
               <TabsContent value="sosial" className="m-0 focus-visible:outline-none flex flex-col gap-6">
                 <FormSection title="Data Sosial">
                   <Field label="Anak ke-"><Input name="child_order" type="number" min="1" value={formData.child_order || ""} onChange={handleChange} /></Field>
-                  <Field label="Jumlah Saudara"><Input name="num_siblings" type="number" min="0" value={formData.num_siblings || ""} onChange={handleChange} /></Field>
+                  <Field label="Jumlah Saudara Kandung"><Input name="num_siblings" type="number" min="0" value={formData.num_siblings || ""} onChange={handleChange} /></Field>
                   <Field label="Tinggal Bersama">
                     <Select value={formData.living_with} onValueChange={v => handleSelect("living_with", v)}>
                       <SelectTrigger><SelectValue placeholder="Pilih" /></SelectTrigger>
@@ -222,6 +246,8 @@ export default function StudentEdit() {
                       <SelectContent>{transportOptions.map(o => <SelectItem key={o} value={o}>{o}</SelectItem>)}</SelectContent>
                     </Select>
                   </Field>
+                  <Field label="Hobi"><Input name="hobby" placeholder="Membaca, Olahraga..." value={formData.hobby} onChange={handleChange} /></Field>
+                  <Field label="Cita-cita"><Input name="ambition" placeholder="Dokter, Polisi..." value={formData.ambition} onChange={handleChange} /></Field>
                   <Field label="Kebutuhan Khusus"><Input name="special_needs" value={formData.special_needs} onChange={handleChange} /></Field>
                 </FormSection>
 
@@ -236,53 +262,127 @@ export default function StudentEdit() {
                 </FormSection>
               </TabsContent>
 
+              <TabsContent value="akademik" className="m-0 focus-visible:outline-none flex flex-col gap-6">
+                <FormSection title="Asal Sekolah Sebelumnya (TK/RA)">
+                  <Field label="Nama/Jenis Sekolah Asal"><Input name="previous_school_type" placeholder="Cth: TK ABA 1" value={formData.previous_school_type} onChange={handleChange} /></Field>
+                  <Field label="Status Sekolah Asal">
+                    <Select value={formData.previous_school_status} onValueChange={v => handleSelect("previous_school_status", v)}>
+                      <SelectTrigger><SelectValue placeholder="Pilih status" /></SelectTrigger>
+                      <SelectContent>{schoolStatusOptions.map(o => <SelectItem key={o} value={o}>{o}</SelectItem>)}</SelectContent>
+                    </Select>
+                  </Field>
+                  <Field label="Kabupaten/Kota Sekolah Asal"><Input name="previous_school_city" value={formData.previous_school_city} onChange={handleChange} /></Field>
+                </FormSection>
+
+                <FormSection title="Data Akademik Saat Ini">
+                  <Field label="Tanggal Masuk Sekolah"><Input name="enrollment_date" type="date" value={formData.enrollment_date} onChange={handleChange} /></Field>
+                  <Field label="Nomor Absen di Kelas"><Input name="class_absent_number" value={formData.class_absent_number} onChange={handleChange} /></Field>
+                  <Field label="Rangking di Kelas"><Input name="class_rank" type="number" min="0" value={formData.class_rank || ""} onChange={handleChange} /></Field>
+                </FormSection>
+              </TabsContent>
+
+              <TabsContent value="bantuan" className="m-0 focus-visible:outline-none flex flex-col gap-6">
+                <FormSection title="Kartu Bantuan Sosial">
+                  <Field label="Nomor KKS"><Input name="kks_number" value={formData.kks_number} onChange={handleChange} /></Field>
+                  <Field label="Nomor KPS"><Input name="kps_number" value={formData.kps_number} onChange={handleChange} /></Field>
+                  <Field label="Nomor KIP"><Input name="kip_number" value={formData.kip_number} onChange={handleChange} /></Field>
+                  <Field label="Nomor Kartu PKH"><Input name="pkh_number" value={formData.pkh_number} onChange={handleChange} /></Field>
+                  <Field label="Nomor KIS"><Input name="kis_number" value={formData.kis_number} onChange={handleChange} /></Field>
+                </FormSection>
+
+                <FormSection title="Program Indonesia Pintar (PIP/BSM)">
+                  <div className="space-y-2 flex flex-col justify-center h-full pt-4">
+                    <div className="flex items-center space-x-2">
+                      <input type="checkbox" id="is_pip_receiver" name="is_pip_receiver" checked={formData.is_pip_receiver} onChange={handleChange} className="h-4 w-4 rounded border-gray-300" />
+                      <Label htmlFor="is_pip_receiver">Siswa adalah Penerima PIP/BSM</Label>
+                    </div>
+                  </div>
+                  <Field label="Nomor PIP / BSM"><Input name="pip_number" value={formData.pip_number} onChange={handleChange} disabled={!formData.is_pip_receiver} /></Field>
+                  <Field label="Alasan Menerima PIP/BSM"><Input name="pip_reason" value={formData.pip_reason} onChange={handleChange} disabled={!formData.is_pip_receiver} /></Field>
+                  <Field label="Periode Menerima PIP/BSM"><Input name="pip_period" placeholder="Tahun/Periode" value={formData.pip_period} onChange={handleChange} disabled={!formData.is_pip_receiver} /></Field>
+                </FormSection>
+
+                <FormSection title="Prestasi Tertinggi">
+                  <Field label="Bidang Prestasi"><Input name="achievement_field" placeholder="Akademik/Olahraga/Seni" value={formData.achievement_field} onChange={handleChange} /></Field>
+                  <Field label="Tingkat Prestasi">
+                    <Select value={formData.achievement_level} onValueChange={v => handleSelect("achievement_level", v)}>
+                      <SelectTrigger><SelectValue placeholder="Pilih tingkat" /></SelectTrigger>
+                      <SelectContent>{achievementLevels.map(o => <SelectItem key={o} value={o}>{o}</SelectItem>)}</SelectContent>
+                    </Select>
+                  </Field>
+                  <Field label="Peringkat yang Diraih"><Input name="achievement_rank" placeholder="Juara 1" value={formData.achievement_rank} onChange={handleChange} /></Field>
+                  <Field label="Tahun Meraih Prestasi"><Input name="achievement_year" type="number" placeholder="2023" value={formData.achievement_year || ""} onChange={handleChange} /></Field>
+                </FormSection>
+
+                <FormSection title="Beasiswa (Selain PIP/BSM)">
+                  <Field label="Status Beasiswa">
+                    <Select value={formData.scholarship_status} onValueChange={v => handleSelect("scholarship_status", v)}>
+                      <SelectTrigger><SelectValue placeholder="Pilih status" /></SelectTrigger>
+                      <SelectContent>{scholarshipStatusOptions.map(o => <SelectItem key={o} value={o}>{o}</SelectItem>)}</SelectContent>
+                    </Select>
+                  </Field>
+                  <Field label="Sumber Beasiswa">
+                    <Select value={formData.scholarship_source} onValueChange={v => handleSelect("scholarship_source", v)}>
+                      <SelectTrigger><SelectValue placeholder="Pilih sumber" /></SelectTrigger>
+                      <SelectContent>{scholarshipSources.map(o => <SelectItem key={o} value={o}>{o}</SelectItem>)}</SelectContent>
+                    </Select>
+                  </Field>
+                  <Field label="Jenis Beasiswa"><Input name="scholarship_type" placeholder="Prestasi/Bakat" value={formData.scholarship_type} onChange={handleChange} /></Field>
+                  <Field label="Besar Uang Diterima (Rp)"><Input name="scholarship_amount" type="number" placeholder="0" value={formData.scholarship_amount || ""} onChange={handleChange} /></Field>
+                  <Field label="Jangka Waktu (Bulan)"><Input name="scholarship_duration_months" type="number" placeholder="12" value={formData.scholarship_duration_months || ""} onChange={handleChange} /></Field>
+                </FormSection>
+              </TabsContent>
+
               <TabsContent value="keluarga" className="m-0 focus-visible:outline-none flex flex-col gap-6">
-                <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
-                  <div className="mb-5"><h3 className="text-sm font-semibold text-slate-800">Data Ayah Kandung</h3></div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <Card className="border bg-card">
+                  <CardHeader className="pb-4"><CardTitle className="text-base font-medium">Data Ayah Kandung</CardTitle></CardHeader>
+                  <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <Field label="Nama Ayah"><Input name="father_name" value={formData.father_name} onChange={handleChange} /></Field>
                     <Field label="NIK Ayah"><Input name="father_nik" value={formData.father_nik} onChange={handleChange} /></Field>
-                    <Field label="Tahun Lahir"><Input name="father_birth_year" type="number" value={formData.father_birth_year || ""} onChange={handleChange} /></Field>
-                    <Field label="Pendidikan">
+                    <Field label="Tanggal Lahir Ayah"><Input name="father_birth_date" type="date" value={formData.father_birth_date} onChange={handleChange} /></Field>
+                    <Field label="Tahun Lahir Ayah"><Input name="father_birth_year" type="number" value={formData.father_birth_year || ""} onChange={handleChange} /></Field>
+                    <Field label="Pendidikan Terakhir Ayah">
                       <Select value={formData.father_education} onValueChange={v => handleSelect("father_education", v)}>
                         <SelectTrigger><SelectValue placeholder="Pilih jenjang" /></SelectTrigger>
                         <SelectContent>{educationLevels.map(l => <SelectItem key={l.value} value={l.value}>{l.label}</SelectItem>)}</SelectContent>
                       </Select>
                     </Field>
-                    <Field label="Pekerjaan"><Input name="father_occupation" value={formData.father_occupation} onChange={handleChange} /></Field>
-                    <Field label="Penghasilan Bulanan (Rp)"><Input name="father_income" type="number" value={formData.father_income || ""} onChange={handleChange} /></Field>
-                    <div className="flex items-center gap-2 pt-5">
-                      <input type="checkbox" id="father_is_alive" name="father_is_alive" checked={formData.father_is_alive} onChange={handleChange} className="h-4 w-4 rounded" />
+                    <Field label="Pekerjaan Ayah"><Input name="father_occupation" value={formData.father_occupation} onChange={handleChange} /></Field>
+                    <Field label="Penghasilan Bulanan Ayah (Rp)"><Input name="father_income" type="number" min="0" value={formData.father_income || ""} onChange={handleChange} /></Field>
+                    <div className="space-y-1.5 flex items-center gap-2 pt-5">
+                      <input type="checkbox" id="father_is_alive" name="father_is_alive" checked={formData.father_is_alive} onChange={handleChange} className="h-4 w-4 rounded border-gray-300" />
                       <Label htmlFor="father_is_alive" className="text-sm cursor-pointer">Ayah masih hidup</Label>
                     </div>
-                  </div>
-                </div>
+                  </CardContent>
+                </Card>
 
-                <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
-                  <div className="mb-5"><h3 className="text-sm font-semibold text-slate-800">Data Ibu Kandung</h3></div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <Card className="border bg-card">
+                  <CardHeader className="pb-4"><CardTitle className="text-base font-medium">Data Ibu Kandung</CardTitle></CardHeader>
+                  <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <Field label="Nama Ibu"><Input name="mother_name" value={formData.mother_name} onChange={handleChange} /></Field>
                     <Field label="NIK Ibu"><Input name="mother_nik" value={formData.mother_nik} onChange={handleChange} /></Field>
-                    <Field label="Tahun Lahir"><Input name="mother_birth_year" type="number" value={formData.mother_birth_year || ""} onChange={handleChange} /></Field>
-                    <Field label="Pendidikan">
+                    <Field label="Tanggal Lahir Ibu"><Input name="mother_birth_date" type="date" value={formData.mother_birth_date} onChange={handleChange} /></Field>
+                    <Field label="Tahun Lahir Ibu"><Input name="mother_birth_year" type="number" value={formData.mother_birth_year || ""} onChange={handleChange} /></Field>
+                    <Field label="Pendidikan Terakhir Ibu">
                       <Select value={formData.mother_education} onValueChange={v => handleSelect("mother_education", v)}>
                         <SelectTrigger><SelectValue placeholder="Pilih jenjang" /></SelectTrigger>
                         <SelectContent>{educationLevels.map(l => <SelectItem key={l.value} value={l.value}>{l.label}</SelectItem>)}</SelectContent>
                       </Select>
                     </Field>
-                    <Field label="Pekerjaan"><Input name="mother_occupation" value={formData.mother_occupation} onChange={handleChange} /></Field>
-                    <Field label="Penghasilan Bulanan (Rp)"><Input name="mother_income" type="number" value={formData.mother_income || ""} onChange={handleChange} /></Field>
-                    <div className="flex items-center gap-2 pt-5">
-                      <input type="checkbox" id="mother_is_alive" name="mother_is_alive" checked={formData.mother_is_alive} onChange={handleChange} className="h-4 w-4 rounded" />
+                    <Field label="Pekerjaan Ibu"><Input name="mother_occupation" value={formData.mother_occupation} onChange={handleChange} /></Field>
+                    <Field label="Penghasilan Bulanan Ibu (Rp)"><Input name="mother_income" type="number" min="0" value={formData.mother_income || ""} onChange={handleChange} /></Field>
+                    <div className="space-y-1.5 flex items-center gap-2 pt-5">
+                      <input type="checkbox" id="mother_is_alive" name="mother_is_alive" checked={formData.mother_is_alive} onChange={handleChange} className="h-4 w-4 rounded border-gray-300" />
                       <Label htmlFor="mother_is_alive" className="text-sm cursor-pointer">Ibu masih hidup</Label>
                     </div>
-                  </div>
-                </div>
+                  </CardContent>
+                </Card>
 
                 <FormSection title="Kontak Utama Orang Tua">
                   <Field label="Nama"><Input name="parent_name" value={formData.parent_name} onChange={handleChange} /></Field>
                   <Field label="No. Telepon"><Input name="parent_phone" value={formData.parent_phone} onChange={handleChange} /></Field>
                 </FormSection>
+
                 <FormSection title="Data Wali (Opsional)">
                   <Field label="Nama Wali"><Input name="guardian_name" value={formData.guardian_name} onChange={handleChange} /></Field>
                   <Field label="NIK Wali"><Input name="guardian_nik" value={formData.guardian_nik} onChange={handleChange} /></Field>

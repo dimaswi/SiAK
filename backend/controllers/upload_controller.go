@@ -78,7 +78,8 @@ func UploadPhoto(c echo.Context) error {
 	}
 
 	// Get user from JWT context
-	userID := fmt.Sprintf("%v", c.Get("user_id"))
+	claims, _ := c.Get("user").(*middlewares.JwtCustomClaims)
+	userID := claims.ID
 
 	// Record in DB
 	_, err = database.DB.Exec(`
@@ -112,12 +113,11 @@ func UploadPhoto(c echo.Context) error {
 	})
 }
 
-// UploadPaymentProof uploads payment proof for SPP
-// POST /api/upload/payment-proof?payment_id=<uuid>
+// UploadPaymentProof uploads payment proof for a transaction
 func UploadPaymentProof(c echo.Context) error {
-	paymentID := c.QueryParam("payment_id")
-	if paymentID == "" {
-		return c.JSON(http.StatusBadRequest, map[string]string{"message": "payment_id wajib diisi"})
+	txID := c.QueryParam("transaction_id")
+	if txID == "" {
+		return c.JSON(http.StatusBadRequest, map[string]string{"message": "transaction_id wajib diisi"})
 	}
 
 	file, err := c.FormFile("proof")
@@ -141,9 +141,9 @@ func UploadPaymentProof(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": "Gagal membuat direktori"})
 	}
 
-	storedName := fmt.Sprintf("%s_%s%s", paymentID, uuid.New().String()[:8], ext)
-	filePath := filepath.Join(proofDir, storedName)
-	publicURL := fmt.Sprintf("/uploads/payment_proofs/%s", storedName)
+	newFileName := fmt.Sprintf("%s_%s%s", txID, uuid.New().String()[:8], ext)
+	filePath := filepath.Join(proofDir, newFileName)
+	fileURL := fmt.Sprintf("/uploads/payment_proofs/%s", newFileName)
 
 	src, err := file.Open()
 	if err != nil {
@@ -158,21 +158,37 @@ func UploadPaymentProof(c echo.Context) error {
 	defer dst.Close()
 	io.Copy(dst, src)
 
+	// Get user from JWT context
+	claims, _ := c.Get("user").(*middlewares.JwtCustomClaims)
+	userID := claims.ID
+
+	// Record in DB
+	query := `
+		INSERT INTO uploaded_files (file_name, stored_name, file_path, file_type, file_size, entity_type, entity_id, uploaded_by)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+	`
+	_, err = database.DB.Exec(query, file.Filename, newFileName, fileURL, file.Header.Get("Content-Type"), file.Size, "payment_transaction", txID, userID)
+	if err != nil {
+		// Non-fatal: file uploaded but not recorded
+		fmt.Printf("Warning: failed to record upload in DB: %v\n", err)
+	}
+
 	// Update payment record
-	_, err = database.DB.Exec(`
-		UPDATE spp_payments SET
-			payment_proof_url = $1,
-			status = CASE WHEN status = 'belum_bayar' THEN 'pending_verifikasi'::spp_payment_status ELSE status END,
-			updated_at = NOW()
+	updateQuery := `
+		UPDATE payment_transactions SET 
+			payment_proof_url = $1, 
+			status = CASE WHEN status = 'pending' THEN 'pending'::payment_status ELSE status END,
+			updated_at = NOW() 
 		WHERE id = $2
-	`, publicURL, paymentID)
+		`
+	_, err = database.DB.Exec(updateQuery, fileURL, txID)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": "Gagal mengupdate bukti pembayaran"})
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"message":           "Bukti pembayaran berhasil diupload",
-		"payment_proof_url": publicURL,
+		"message":           "Bukti transfer berhasil diupload",
+		"payment_proof_url": fileURL,
 	})
 }
 

@@ -13,7 +13,7 @@ export default function RoleRoute({ allow }: RoleRouteProps) {
   const navigate = useNavigate()
   const hasShownRef = useRef(false)
   const isUnauthorized = Boolean(user && !allow.includes(user.role))
-  const fallback = user && (user.role === "siswa" || user.role === "wali_murid") ? "/spp" : "/"
+  const fallback = "/"
 
   useEffect(() => {
     if (!isUnauthorized || !user || hasShownRef.current) return

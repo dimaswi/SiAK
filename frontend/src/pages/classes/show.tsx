@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react"
 import { useParams, Link } from "react-router-dom"
 import axios from "axios"
-import { ArrowLeft, UserPlus, Users, Settings2, Trash2, Search } from "lucide-react"
+import { ArrowLeft, UserPlus, Users, Trash2, Search } from "lucide-react"
 
 import PageShell from "../../components/PageShell"
 import { Button } from "../../components/ui/button"
@@ -40,7 +40,6 @@ export default function ClassShow() {
 
   const [classData, setClassData] = useState<ClassItem | null>(null)
   const [students, setStudents] = useState<StudentInfo[]>([])
-  const [sppAmount, setSppAmount] = useState<number | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
   // Unassigned students for modal
@@ -50,8 +49,8 @@ export default function ClassShow() {
   const [isAssigning, setIsAssigning] = useState(false)
   const [modalSearch, setModalSearch] = useState("")
 
-  const filteredUnassignedStudents = unassignedStudents.filter(s => 
-    s.full_name.toLowerCase().includes(modalSearch.toLowerCase()) || 
+  const filteredUnassignedStudents = unassignedStudents.filter(s =>
+    s.full_name.toLowerCase().includes(modalSearch.toLowerCase()) ||
     s.nis.toLowerCase().includes(modalSearch.toLowerCase())
   )
 
@@ -64,23 +63,7 @@ export default function ClassShow() {
       ])
       setClassData(classRes.data)
       setStudents(studentsRes.data || [])
-
-      // Fetch SPP setting for this grade level
-      const sppRes = await axios.get(`${API}/spp/settings`)
-      const settings: any[] = sppRes.data || []
-      
-      const academicYear = classRes.data.academic_year
-      const gradeLevel = classRes.data.grade_level
-      
-      const classMatch = settings.find(s => s.academic_year === academicYear && s.class_id === id)
-      const gradeMatch = settings.find(s => s.academic_year === academicYear && s.grade_level === gradeLevel && !s.class_id)
-      const globalMatch = settings.find(s => s.academic_year === academicYear && s.grade_level === null && !s.class_id)
-      
-      if (classMatch) setSppAmount(classMatch.amount)
-      else if (gradeMatch) setSppAmount(gradeMatch.amount)
-      else if (globalMatch) setSppAmount(globalMatch.amount)
-      else setSppAmount(null)
-    } catch (err) {
+    } catch (err: any) {
       console.error("Gagal mengambil data detail kelas:", err)
     } finally {
       setIsLoading(false)
@@ -187,9 +170,6 @@ export default function ClassShow() {
     },
   ]
 
-  const formatRp = (n: number) =>
-    new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(n)
-
   if (isLoading) return <div className="flex h-full items-center justify-center"><div className="animate-spin h-8 w-8 border-2 border-primary border-t-transparent rounded-full" /></div>
   if (!classData) return null
 
@@ -210,9 +190,9 @@ export default function ClassShow() {
         ) : null
       }
     >
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-4 pb-8">
         {/* Class Overview Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4 flex items-center gap-3">
             <div className="h-10 w-10 rounded-full bg-blue-50 border border-blue-100 flex items-center justify-center shrink-0">
               <Users className="h-4 w-4 text-blue-600" />
@@ -224,27 +204,12 @@ export default function ClassShow() {
           </div>
 
           <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4 flex items-center gap-3">
-            <div className="h-10 w-10 rounded-full bg-green-50 border border-green-100 flex items-center justify-center shrink-0">
-              <Users className="h-4 w-4 text-green-600" />
-            </div>
-            <div>
-              <p className="text-xs text-muted-foreground">Jumlah Siswa</p>
-              <p className="text-sm font-bold text-slate-900">{classData.student_count} Siswa</p>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4 flex items-center gap-3 relative overflow-hidden">
-            <div className="h-10 w-10 rounded-full bg-yellow-50 border border-yellow-100 flex items-center justify-center shrink-0">
-              <Settings2 className="h-4 w-4 text-yellow-600" />
+            <div className="h-9 w-9 rounded-full bg-emerald-500/10 flex items-center justify-center shrink-0">
+              <Users className="h-4 w-4 text-emerald-600" />
             </div>
             <div className="flex-1">
-              <p className="text-xs text-muted-foreground">Nominal SPP Kelas Ini</p>
-              <p className="text-sm font-bold text-slate-900">{sppAmount !== null ? formatRp(sppAmount) : "Belum Diatur"}</p>
-              {isAdmin && (
-                <Link to="/spp/settings" className="absolute bottom-1 right-2 text-[10px] text-primary hover:underline">
-                  Atur di Setting SPP ↗
-                </Link>
-              )}
+              <p className="text-xs text-muted-foreground">Total Siswa</p>
+              <p className="text-sm font-bold text-slate-900">{students.length} Siswa</p>
             </div>
           </div>
         </div>
@@ -269,7 +234,7 @@ export default function ClassShow() {
 
       {/* Assign Students Modal */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="max-w-2xl max-h-[80vh] flex flex-col p-0 gap-0 overflow-hidden shadow-2xl">
+        <DialogContent className="max-w-4xl max-h-[80vh] flex flex-col p-0 gap-0 overflow-hidden shadow-2xl">
           <DialogHeader className="px-6 py-4 border-b bg-muted/30">
             <DialogTitle className="text-lg font-semibold flex items-center gap-2">
               <UserPlus className="h-5 w-5 text-primary" />
@@ -318,8 +283,8 @@ export default function ClassShow() {
                     </TableRow>
                   ) : (
                     filteredUnassignedStudents.map(s => (
-                      <TableRow 
-                        key={s.id} 
+                      <TableRow
+                        key={s.id}
                         className={`cursor-pointer transition-colors ${selectedStudentIds.has(s.id) ? 'bg-primary/5' : ''}`}
                         onClick={() => toggleSelectStudent(s.id)}
                       >

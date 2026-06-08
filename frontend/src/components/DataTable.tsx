@@ -25,16 +25,17 @@ interface DataTableProps<TData, TValue> {
   emptySubMessage?: string
 
   // Pagination
-  pageCount: number
-  pageIndex: number
-  onPageChange: (page: number) => void
+  pageCount?: number
+  pageIndex?: number
+  onPageChange?: (page: number) => void
+  pageSize?: number
+  onPageSizeChange?: (pageSize: number) => void
 
   // Search (Optional)
   searchPlaceholder?: string
   searchValue?: string
   onSearchChange?: (value: string) => void
   totalItems?: number
-  pageSize?: number
   extraFilters?: React.ReactNode
 }
 
@@ -44,14 +45,15 @@ export function DataTable<TData, TValue>({
   isLoading,
   emptyMessage = "Data tidak ditemukan",
   emptySubMessage,
-  pageCount,
-  pageIndex,
+  pageCount = 1,
+  pageIndex = 1,
   onPageChange,
+  pageSize = 10,
+  onPageSizeChange,
   searchPlaceholder = "Cari...",
   searchValue,
   onSearchChange,
   totalItems,
-  pageSize = 10,
   extraFilters,
 }: DataTableProps<TData, TValue>) {
   const table = useReactTable({
@@ -115,7 +117,7 @@ export function DataTable<TData, TValue>({
               Array.from({ length: 10 }).map((_, i) => (
                 <TableRow key={i}>
                   {columns.map((_, j) => (
-                    <TableCell key={j} className="p-4">
+                    <TableCell key={j} className="px-4 py-2.5">
                       <div className="h-4 bg-muted/50 rounded-none animate-pulse w-full max-w-[120px]" />
                     </TableCell>
                   ))}
@@ -130,21 +132,12 @@ export function DataTable<TData, TValue>({
                     className={`transition-colors hover:bg-muted/30 ${isLoading ? "opacity-50 pointer-events-none" : ""}`}
                   >
                     {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id} className="p-4">
+                      <TableCell key={cell.id} className="px-4 py-1">
                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </TableCell>
                     ))}
                   </TableRow>
                 ))}
-                {table.getRowModel().rows.length > 0 && table.getRowModel().rows.length < pageSize && (
-                  Array.from({ length: pageSize - table.getRowModel().rows.length }).map((_, i) => (
-                    <TableRow key={`empty-${i}`} className="hover:bg-transparent border-0">
-                      <TableCell colSpan={columns.length} className="p-4">
-                        <div className="h-[21px]" />
-                      </TableCell>
-                    </TableRow>
-                  ))
-                )}
               </>
             ) : (
               <TableRow>
@@ -161,10 +154,31 @@ export function DataTable<TData, TValue>({
       </div>
 
       {/* Modern Professional Pagination */}
-      {pageCount > 1 && (
-        <div className="flex items-center justify-between px-1 pt-4 pb-8">
-          <div className="text-sm text-muted-foreground font-medium">
-            Halaman <span className="text-foreground">{pageIndex}</span> dari {pageCount}
+      {(pageCount > 1 || (data && data.length > 10)) && (
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-1 pt-2 pb-6">
+          <div className="flex items-center gap-4">
+            <div className="text-sm text-muted-foreground font-medium">
+              Halaman <span className="text-foreground">{pageIndex}</span> dari {pageCount}
+            </div>
+            {onPageSizeChange && (
+              <div className="flex items-center gap-2 border-l pl-4">
+                <p className="text-sm font-medium text-muted-foreground hidden sm:block">Tampilkan</p>
+                <select
+                  value={pageSize}
+                  onChange={(e) => {
+                    onPageSizeChange(Number(e.target.value))
+                    if (onPageChange) onPageChange(1)
+                  }}
+                  className="h-8 rounded-md border border-input bg-transparent px-2 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring cursor-pointer"
+                >
+                  {[10, 20, 30, 40, 50].map((size) => (
+                    <option key={size} value={size}>
+                      {size}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
           </div>
           <div className="flex items-center gap-2">
             <Button

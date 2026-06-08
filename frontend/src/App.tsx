@@ -12,9 +12,9 @@ import StudentsIndex from './pages/students/index';
 import StudentCreate from './pages/students/create';
 import StudentEdit from './pages/students/edit';
 import StudentShow from './pages/students/show';
-import SppIndex from './pages/spp/index';
-import SppShow from './pages/spp/show';
-import SppSettings from './pages/spp/settings';
+import BillingIndex from './pages/payments/index';
+import BillingShow from './pages/payments/show';
+import BillingCreate from './pages/payments/create';
 import UsersIndex from './pages/users/index';
 import ClassesIndex from './pages/classes/index';
 import ClassShow from './pages/classes/show';
@@ -82,7 +82,7 @@ function App() {
             {/* Protected + shared Layout shell */}
             <Route element={<ProtectedRoute />}>
               <Route element={<DashboardLayout />}>
-                <Route element={<RoleRoute allow={["admin", "kepala_sekolah", "guru"]} />}>
+                <Route element={<RoleRoute allow={["admin", "kepala_sekolah", "guru", "siswa", "wali_murid"]} />}>
                   <Route path="/" element={<Dashboard />} />
                 </Route>
 
@@ -104,12 +104,13 @@ function App() {
                   <Route path="/siswa/:id/edit" element={<StudentEdit />} />
                 </Route>
 
-                {/* SPP Routes */}
-                <Route path="/spp" element={<SppIndex />} />
-                <Route path="/spp/:id" element={<SppShow />} />
-                <Route element={<RoleRoute allow={["admin", "kepala_sekolah", "guru"]} />}>
-                  <Route path="/spp/settings" element={<SppSettings />} />
+                {/* Billing Routes */}
+                <Route path="/payments" element={<BillingIndex />} />
+                <Route path="/payments/:id" element={<BillingShow />} />
+                <Route element={<RoleRoute allow={["admin"]} />}>
+                  <Route path="/payments/create" element={<BillingCreate />} />
                 </Route>
+
                 {/* Users Route */}
                 <Route element={<RoleRoute allow={["admin", "kepala_sekolah"]} />}>
                   <Route path="/users" element={<UsersIndex />} />

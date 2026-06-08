@@ -15,7 +15,7 @@ func main() {
 	database.Connect(cfg)
 	defer database.Close()
 
-	sqlBytes, err := ioutil.ReadFile("db/migrations/005_ppdb_lengkap.sql")
+	sqlBytes, err := ioutil.ReadFile("db/migrations/012_recurring_billings.sql")
 	if err != nil {
 		log.Fatalf("Failed to read migration file: %v", err)
 	}
@@ -25,5 +25,5 @@ func main() {
 		log.Fatalf("Failed to execute migration: %v", err)
 	}
 
-	fmt.Println("Migration 005 executed successfully!")
+	fmt.Println("Migration 012 executed successfully!")
 }

@@ -11,9 +11,12 @@ import { Badge } from "../components/ui/badge"
 interface DashboardStats {
   total_students: number
   total_teachers: number
-  total_spp_month: number
+  total_payments_month: number
   pending_verification: number
   display_name?: string
+  student_total_billings?: number
+  student_total_paid?: number
+  student_total_unpaid?: number
 }
 
 const formatRp = (value: number) =>
@@ -59,7 +62,7 @@ export default function Dashboard() {
   const [stats, setStats] = useState<DashboardStats>({
     total_students: 0,
     total_teachers: 0,
-    total_spp_month: 0,
+    total_payments_month: 0,
     pending_verification: 0,
     display_name: "",
   })
@@ -80,6 +83,7 @@ export default function Dashboard() {
   }, [])
 
   const role = user?.role ?? "user"
+  const isSiswa = role === "siswa" || role === "wali_murid"
   const isGuru = role === "guru"
   const displayName = stats.display_name || user?.identifier || "-"
   const roleLabel =
@@ -91,17 +95,22 @@ export default function Dashboard() {
 
   const quickLinks = useMemo(
     () =>
-      isGuru
+      isSiswa
+        ? [
+            { label: "Tagihan Saya", href: "/payments", desc: "Lihat dan bayar tagihan sekolah Anda." },
+            { label: "Riwayat Transaksi", href: "/payments", desc: "Periksa status pembayaran Anda." },
+          ]
+        : isGuru
         ? [
             { label: "Kelas Saya", href: "/classes", desc: "Daftar kelas yang Anda pegang sebagai wali kelas." },
-            { label: "SPP Murid Kelas", href: "/spp", desc: "Status pembayaran siswa pada kelas Anda." },
+            { label: "Tagihan Murid Kelas", href: "/payments", desc: "Status pembayaran siswa pada kelas Anda." },
           ]
         : [
             { label: "Manajemen Siswa", href: "/siswa", desc: "Data siswa aktif, profil, dan status kelas." },
-            { label: "Manajemen Guru", href: "/guru", desc: "Data guru, akun, serta hak akses." },
-            { label: "Pembayaran SPP", href: "/spp", desc: "Tagihan, verifikasi, dan riwayat pembayaran." },
+            { label: "Guru & Staff", href: "/guru", desc: "Kelola data tenaga pendidik." },
+            { label: "Keuangan & Tagihan", href: "/payments", desc: "Pantau SPP dan pembayaran." },
           ],
-    [isGuru]
+    [isSiswa, isGuru]
   )
 
   return (
@@ -128,41 +137,22 @@ export default function Dashboard() {
             ))}
           </div>
         ) : (
-          <div className={`grid gap-4 ${isGuru ? "sm:grid-cols-3" : "sm:grid-cols-2 lg:grid-cols-4"}`}>
-            <KpiCard
-              label="Murid Aktif"
-              value={stats.total_students.toLocaleString("id-ID")}
-              hint={isGuru ? "Di kelas yang Anda pegang" : "Seluruh siswa aktif"}
-              icon={GraduationCap}
-              iconBg="bg-blue-100"
-              iconColor="text-blue-600"
-            />
-            {!isGuru && (
-              <KpiCard
-                label="Guru Aktif"
-                value={stats.total_teachers.toLocaleString("id-ID")}
-                hint="Guru aktif mengajar"
-                icon={Users}
-                iconBg="bg-purple-100"
-                iconColor="text-purple-600"
-              />
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {isSiswa ? (
+              <>
+                <KpiCard label="Total Tagihan" value={formatRp(stats.student_total_billings || 0)} hint="Keseluruhan tagihan Anda" icon={CreditCard} iconBg="bg-blue-100" iconColor="text-blue-600" />
+                <KpiCard label="Total Terbayar" value={formatRp(stats.student_total_paid || 0)} hint="Jumlah yang sudah dilunasi" icon={GraduationCap} iconBg="bg-green-100" iconColor="text-green-600" />
+                <KpiCard label="Sisa Belum Dibayar" value={formatRp(stats.student_total_unpaid || 0)} hint="Kekurangan tagihan aktif" icon={ArrowRight} iconBg="bg-red-100" iconColor="text-red-600" />
+                <KpiCard label="Menunggu Verifikasi" value={`${stats.pending_verification || 0} Trx`} hint="Sedang dicek oleh Admin" icon={Clock3} iconBg="bg-amber-100" iconColor="text-amber-600" />
+              </>
+            ) : (
+              <>
+                <KpiCard label="Total Siswa" value={stats.total_students.toString()} hint="Siswa aktif saat ini" icon={GraduationCap} iconBg="bg-blue-100" iconColor="text-blue-600" />
+                <KpiCard label="Total Guru" value={stats.total_teachers.toString()} hint="Tenaga pendidik aktif" icon={Users} iconBg="bg-purple-100" iconColor="text-purple-600" />
+                <KpiCard label="Pembayaran Bulan Ini" value={formatRp(stats.total_payments_month)} hint="Pemasukan terverifikasi (Di luar diskon)" icon={CreditCard} iconBg="bg-emerald-100" iconColor="text-emerald-600" />
+                <KpiCard label="Verifikasi Tertunda" value={`${stats.pending_verification} Trx`} hint="Membutuhkan persetujuan" icon={Clock3} iconBg="bg-amber-100" iconColor="text-amber-600" />
+              </>
             )}
-            <KpiCard
-              label="SPP Bulan Ini"
-              value={formatRp(stats.total_spp_month)}
-              hint="Akumulasi pembayaran lunas"
-              icon={CreditCard}
-              iconBg="bg-teal-100"
-              iconColor="text-teal-600"
-            />
-            <KpiCard
-              label="Pending Verifikasi"
-              value={stats.pending_verification.toString()}
-              hint="Bukti transfer menunggu review"
-              icon={Clock3}
-              iconBg="bg-amber-100"
-              iconColor="text-amber-600"
-            />
           </div>
         )}
 

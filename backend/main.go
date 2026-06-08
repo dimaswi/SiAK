@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"siak/backend/config"
+	"siak/backend/cron"
 	"siak/backend/database"
 	"siak/backend/routes"
 
@@ -20,6 +21,10 @@ func main() {
 	database.Connect(cfg)
 	defer database.Close()
 
+	// Start Background Tasks
+	cron.StartBillingCron()
+
+	// Initialize Echo
 	e := echo.New()
 
 	// Middleware

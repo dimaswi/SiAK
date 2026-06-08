@@ -24,6 +24,7 @@ import {
   ClipboardList,
   PanelsTopLeft,
   LogOut,
+  Calendar,
 } from "lucide-react"
 import { useAuth } from "../context/AuthContext"
 
@@ -54,9 +55,15 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const navGroups = role === "siswa" || role === "wali_murid"
     ? [
       {
+        title: "Utama",
+        items: [
+          { title: "Dashboard", url: "/", icon: LayoutDashboard },
+        ],
+      },
+      {
         title: "Keuangan",
         items: [
-          { title: "Pembayaran SPP", url: "/spp", icon: CreditCard },
+          { title: "Tagihan & Pembayaran", url: "/payments", icon: CreditCard },
         ],
       },
     ]
@@ -77,7 +84,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         {
           title: "Keuangan",
           items: [
-            { title: "Pembayaran SPP", url: "/spp", icon: CreditCard },
+            { title: "Tagihan & Pembayaran", url: "/payments", icon: CreditCard },
           ],
         },
       ]
@@ -109,7 +116,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         {
           title: "Keuangan",
           items: [
-            { title: "Pembayaran SPP", url: "/spp", icon: CreditCard },
+            { title: "Tagihan & Pembayaran", url: "/payments", icon: CreditCard },
           ],
         },
       ]

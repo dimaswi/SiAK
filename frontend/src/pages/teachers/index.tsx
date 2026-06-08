@@ -15,7 +15,7 @@ export default function TeachersIndex() {
   const [isLoading, setIsLoading] = useState(true)
   const [search, setSearch] = useState("")
   const [page, setPage] = useState(1)
-  const [limit] = useState(10)
+  const [limit, setLimit] = useState(10)
   const [totalPages, setTotalPages] = useState(1)
   const [total, setTotal] = useState(0)
   const navigate = useNavigate()
@@ -28,7 +28,7 @@ export default function TeachersIndex() {
       )
       setData(response.data.data || [])
       setTotalPages(response.data.meta?.total_pages || 1)
-      setTotal(response.data.meta?.total || 0)
+      setTotal(response.data.meta?.total_items || 0)
     } catch (error) {
       console.error("Gagal mengambil data guru:", error)
     } finally {
@@ -36,7 +36,7 @@ export default function TeachersIndex() {
     }
   }
 
-  useEffect(() => { fetchTeachers(page) }, [page])
+  useEffect(() => { fetchTeachers(page) }, [page, limit])
 
   const filtered = data.filter((t) =>
     t.full_name.toLowerCase().includes(search.toLowerCase()) ||
@@ -63,8 +63,7 @@ export default function TeachersIndex() {
           </div>
           <p className="text-sm text-muted-foreground ml-auto hidden sm:block">{total} total data</p>
         </div>
-        <DataTable columns={columns} data={displayData} isLoading={isLoading} pageCount={totalPages} pageIndex={page} onPageChange={setPage}
-          emptyMessage={search ? "Guru tidak ditemukan" : "Belum ada data guru"} emptySubMessage={search ? "Coba kata kunci lain" : "Mulai tambahkan data guru baru"} />
+        <DataTable columns={columns} data={displayData} isLoading={isLoading} pageCount={totalPages} pageIndex={page} onPageChange={setPage} pageSize={limit} onPageSizeChange={setLimit} emptyMessage={search ? "Guru tidak ditemukan" : "Belum ada data guru"} emptySubMessage={search ? "Coba kata kunci lain" : "Mulai tambahkan data guru baru"} />
       </div>
     </PageShell>
   )

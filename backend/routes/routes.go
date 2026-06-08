@@ -51,7 +51,7 @@ func SetupRoutes(e *echo.Echo) {
 	studentLike.Use(middlewares.RequireRoles("admin", "kepala_sekolah", "guru", "siswa", "wali_murid"))
 
 	// ── Dashboard ──────────────────────────────────────────────
-	teacherLike.GET("/dashboard", controllers.GetDashboardStats)
+	studentLike.GET("/dashboard", controllers.GetDashboardStats)
 
 	// ── Teacher routes ─────────────────────────────────────────
 	adminLike.GET("/teachers", controllers.GetTeachers)
@@ -73,23 +73,29 @@ func SetupRoutes(e *echo.Echo) {
 	adminLike.GET("/upload/cms-images", controllers.GetCMSMediaLibrary)
 	studentLike.POST("/upload/payment-proof", controllers.UploadPaymentProof)
 
-	// ── SPP Settings routes ────────────────────────────────────
-	teacherLike.GET("/spp/settings", controllers.GetSppSettings)
-	teacherLike.POST("/spp/settings", controllers.CreateSppSetting)
-	teacherLike.DELETE("/spp/settings/:id", controllers.DeleteSppSetting)
+	// ── Billings & Payments routes ─────────────────────────────────────
+	teacherLike.GET("/billings", controllers.GetBillings)
+	teacherLike.GET("/billings/:id", controllers.GetBillingByID)
+	teacherLike.POST("/billings", controllers.CreateBilling)
+	teacherLike.DELETE("/billings/:id", controllers.DeleteBilling)
+	teacherLike.GET("/transactions", controllers.GetTransactions)
+	teacherLike.POST("/transactions", controllers.CreateTransaction)
+	teacherLike.PUT("/transactions/:id/verify", controllers.VerifyTransaction)
+	teacherLike.PUT("/billings/:id/pay-off", controllers.PayOffBilling)
+	teacherLike.PUT("/billings/:id/discount", controllers.DiscountBilling)
 
-	// ── SPP Payment routes ─────────────────────────────────────
-	teacherLike.GET("/spp/payments", controllers.GetSppPayments)
-	teacherLike.GET("/spp/payments/stats", controllers.GetSppMonthlyStats)
-	studentLike.GET("/spp/payments/:id", controllers.GetSppPaymentByID)
-	teacherLike.POST("/spp/payments", controllers.CreateSppPayment)
-	teacherLike.POST("/spp/payments/generate", controllers.GenerateSppBulk)
-	studentLike.PUT("/spp/payments/:id", controllers.UpdateSppPayment)
-	teacherLike.PUT("/spp/payments/:id/verify", controllers.VerifySppPayment)
-	teacherLike.DELETE("/spp/payments/:id", controllers.DeleteSppPayment)
+	// Recurring Billings
+	adminLike.GET("/recurring-billings", controllers.GetRecurringBillings)
+	adminLike.POST("/recurring-billings", controllers.CreateRecurringBilling)
+	adminLike.PUT("/recurring-billings/:id/toggle", controllers.ToggleRecurringBilling)
+	adminLike.POST("/recurring-billings/:id/force-run", controllers.ForceRunRecurringBilling)
+	adminLike.DELETE("/recurring-billings/:id", controllers.DeleteRecurringBilling)
 
-	// ── SPP History per student ────────────────────────────────
-	studentLike.GET("/spp/student/:student_id", controllers.GetStudentSppHistory)
+	teacherLike.DELETE("/transactions/:id", controllers.DeleteTransaction)
+	studentLike.GET("/billings/student", controllers.GetBillings) // Students can fetch their own billings by adding student_id in controller
+	studentLike.GET("/billings/student/:id", controllers.GetBillingByID)
+	studentLike.GET("/transactions/student", controllers.GetTransactions)
+	studentLike.POST("/transactions/student", controllers.CreateTransaction)
 
 	// ── Class routes ───────────────────────────────────────────
 	teacherLike.GET("/classes", controllers.GetClasses)

@@ -98,7 +98,7 @@ export default function ClassesIndex() {
       id: "student_count",
       header: "Jumlah Siswa",
       cell: ({ row }: any) => (
-        <span className="text-sm font-medium">{row.original.student_count} Siswa</span>
+        <span className="text-sm font-medium">{row.original.student_count || 0} Siswa</span>
       ),
     },
     {
@@ -165,7 +165,7 @@ export default function ClassesIndex() {
             <div>
               <p className="text-xs text-slate-500">Total Siswa Terdaftar di Kelas</p>
               <p className="text-lg font-bold text-slate-800">
-                {data.reduce((acc, curr) => acc + curr.student_count, 0)}
+                {data.reduce((acc, curr) => acc + (curr.student_count || 0), 0)}
               </p>
             </div>
           </div>

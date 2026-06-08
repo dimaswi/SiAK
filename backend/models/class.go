@@ -7,7 +7,7 @@ type Class struct {
 	AcademicYear        string `json:"academic_year"`
 	HomeroomTeacherID   string `json:"homeroom_teacher_id"`
 	HomeroomTeacherName string `json:"homeroom_teacher_name,omitempty"`
-	StudentCount        int    `json:"student_count,omitempty"`
+	StudentCount        int    `json:"student_count"`
 	CreatedAt           string `json:"created_at"`
 	UpdatedAt           string `json:"updated_at"`
 }

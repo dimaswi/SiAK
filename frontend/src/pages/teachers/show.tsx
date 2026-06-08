@@ -131,23 +131,32 @@ export default function TeacherShow() {
         </Button>
       }
     >
-      <div className="flex flex-col gap-6 w-full">
+      <div className="flex flex-col gap-6 w-full pb-12">
         {/* Avatar Card */}
-        <div className="bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col sm:flex-row items-center sm:items-start p-6 gap-6 w-full">
-          <div className="h-24 w-24 rounded-full bg-muted border-4 border-background shadow-sm flex items-center justify-center shrink-0 overflow-hidden">
-            <User className="h-10 w-10 text-muted-foreground" />
+        <div className="bg-white rounded-xl border border-slate-200 shadow-sm flex flex-row items-center p-3 sm:px-5 gap-4 w-full">
+          <div className="h-12 w-12 sm:h-14 sm:w-14 rounded-full bg-muted border-2 border-slate-100 shadow-sm flex items-center justify-center shrink-0 overflow-hidden">
+            <User className="h-6 w-6 text-muted-foreground" />
           </div>
-          <div className="flex flex-col items-center sm:items-start flex-1 gap-2">
-            <div className="text-center sm:text-left">
-              <h2 className="text-2xl font-bold text-foreground leading-tight">{teacher.full_name}</h2>
-              <p className="text-sm text-muted-foreground mt-1 font-mono">NIP: {teacher.nip} {teacher.nuptk ? `| NUPTK: ${teacher.nuptk}` : ""}</p>
+          <div className="flex flex-col flex-1 gap-1">
+            <div className="flex flex-row items-center gap-2">
+              <h2 className="text-base sm:text-lg font-bold text-slate-800 leading-none truncate">{teacher.full_name}</h2>
+              {teacher.is_active ? (
+                <Badge className="bg-emerald-500 hover:bg-emerald-600 text-white px-2 py-0 text-[10px] uppercase font-bold tracking-wider leading-relaxed shrink-0 rounded-md">Aktif</Badge>
+              ) : (
+                <Badge variant="secondary" className="px-2 py-0 text-[10px] uppercase font-bold tracking-wider leading-relaxed shrink-0 rounded-md">Non-aktif</Badge>
+              )}
             </div>
-            <div className="flex flex-wrap gap-2 justify-center sm:justify-start mt-2">
-              <Badge variant={teacher.is_active ? "default" : "secondary"} className="text-xs">
-                {teacher.is_active ? "Aktif" : "Non-aktif"}
-              </Badge>
-              {teacher.employee_status && <Badge variant="outline" className="text-xs capitalize">{teacher.employee_status.replace("_", " ")}</Badge>}
-              {teacher.subject && <Badge variant="secondary" className="text-xs">{teacher.subject}</Badge>}
+            <div className="flex flex-row items-center flex-wrap gap-x-2 gap-y-1 text-xs sm:text-sm text-slate-500 font-mono">
+              <span>NIP: {teacher.nip || "—"}</span>
+              {teacher.nuptk && (
+                <>
+                  <span className="opacity-50">|</span>
+                  <span>NUPTK: {teacher.nuptk}</span>
+                </>
+              )}
+              {(teacher.employee_status || teacher.subject) && <span className="opacity-50">|</span>}
+              {teacher.employee_status && <Badge variant="outline" className="text-[10px] uppercase px-1.5 py-0 h-[18px] min-h-0 leading-none bg-slate-50">{teacher.employee_status.replace("_", " ")}</Badge>}
+              {teacher.subject && <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-[18px] min-h-0 leading-none">{teacher.subject}</Badge>}
             </div>
           </div>
         </div>
@@ -193,7 +202,7 @@ export default function TeacherShow() {
                 <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
                   <div className="bg-slate-50 border-b px-4 py-3"><h4 className="text-sm font-semibold text-slate-800">Penugasan & Jabatan</h4></div>
                   <div className="p-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <InfoRow label="Status Kepegawaian" value={teacher.employee_status?.replace("_", " ")} />
+                    <InfoRow label="Status Kepegawaian" value={teacher.employee_status?.replace("_", " ").toUpperCase()} />
                     <InfoRow label="Jabatan" value={teacher.position} />
                     <InfoRow label="Mata Pelajaran" value={teacher.subject} />
                     <InfoRow label="Jam Mengajar" value={teacher.teaching_hours ? `${teacher.teaching_hours} Jam/Minggu` : ""} />
