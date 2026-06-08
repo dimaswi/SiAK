@@ -13,10 +13,10 @@ FROM alpine:3.22
 
 WORKDIR /app/backend
 
-RUN apk add --no-cache ca-certificates
+RUN apk add --no-cache ca-certificates \
+	&& mkdir -p /app/backend/uploads
 
 COPY --from=builder /usr/local/bin/siak-backend /usr/local/bin/siak-backend
-COPY --from=builder /app/backend/uploads ./uploads
 
 EXPOSE 8080
 
