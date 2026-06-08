@@ -443,7 +443,6 @@ export default function StudentShow() {
               <DataTable
                 columns={billingColumns}
                 data={billings}
-                searchKey="title"
                 searchValue={billingSearch}
                 onSearchChange={setBillingSearch}
                 searchPlaceholder="Cari riwayat tagihan..."

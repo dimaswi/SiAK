@@ -44,14 +44,14 @@ services:
     networks:
       - siak_network
 
-  siak_fronted:
+  siak_frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
       args:
         VITE_API_BASE: ${VITE_API_BASE:-/api}
         VITE_ASSET_BASE: ${VITE_ASSET_BASE:-}
-    container_name: siak_fronted
+    container_name: siak_frontend
     restart: unless-stopped
     ports:
       - "${ADMIN_PORT:-5176}:${ADMIN_CONTAINER_PORT:-80}"

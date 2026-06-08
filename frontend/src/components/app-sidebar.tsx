@@ -23,8 +23,7 @@ import {
   FileText,
   ClipboardList,
   PanelsTopLeft,
-  LogOut,
-  Calendar,
+  LogOut
 } from "lucide-react"
 import { useAuth } from "../context/AuthContext"
 

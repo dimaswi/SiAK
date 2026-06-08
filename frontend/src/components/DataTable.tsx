@@ -186,7 +186,7 @@ export function DataTable<TData, TValue>({
               variant="outline"
               size="icon"
               className="h-8 w-8 rounded-md"
-              onClick={() => onPageChange(1)}
+              onClick={() => onPageChange?.(1)}
               disabled={pageIndex === 1 || isLoading}
             >
               <ChevronsLeft className="h-4 w-4" />
@@ -196,7 +196,7 @@ export function DataTable<TData, TValue>({
               variant="outline"
               size="icon"
               className="h-8 w-8 rounded-md"
-              onClick={() => onPageChange(pageIndex - 1)}
+              onClick={() => onPageChange?.(pageIndex - 1)}
               disabled={pageIndex === 1 || isLoading}
             >
               <ChevronLeft className="h-4 w-4" />
@@ -206,7 +206,7 @@ export function DataTable<TData, TValue>({
               variant="outline"
               size="icon"
               className="h-8 w-8 rounded-md"
-              onClick={() => onPageChange(pageIndex + 1)}
+              onClick={() => onPageChange?.(pageIndex + 1)}
               disabled={pageIndex === pageCount || isLoading}
             >
               <ChevronRight className="h-4 w-4" />
@@ -216,7 +216,7 @@ export function DataTable<TData, TValue>({
               variant="outline"
               size="icon"
               className="h-8 w-8 rounded-md"
-              onClick={() => onPageChange(pageCount)}
+              onClick={() => onPageChange?.(pageCount)}
               disabled={pageIndex === pageCount || isLoading}
             >
               <ChevronsRight className="h-4 w-4" />
