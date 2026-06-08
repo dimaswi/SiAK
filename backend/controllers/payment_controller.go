@@ -38,6 +38,7 @@ func GetBillings(c echo.Context) error {
 	}
 	billingType := c.QueryParam("type")
 	status := c.QueryParam("status")
+	search := c.QueryParam("search")
 
 	query := `
 		SELECT b.id, b.student_id, s.full_name, s.nis, b.type, b.title, b.description, 
@@ -68,6 +69,11 @@ func GetBillings(c echo.Context) error {
 			args = append(args, status)
 			argId++
 		}
+	}
+	if search != "" {
+		query += ` AND (b.title ILIKE $` + strconv.Itoa(argId) + ` OR s.full_name ILIKE $` + strconv.Itoa(argId) + `)`
+		args = append(args, "%"+search+"%")
+		argId++
 	}
 
 	query += ` ORDER BY 
@@ -108,7 +114,7 @@ func GetBillings(c echo.Context) error {
 	}
 
 	// Count total for pagination
-	countQuery := `SELECT COUNT(*) FROM billings b WHERE 1=1`
+	countQuery := `SELECT COUNT(*) FROM billings b JOIN students s ON b.student_id = s.id WHERE 1=1`
 	countArgs := []interface{}{}
 	countArgId := 1
 	if studentID != "" {
@@ -129,6 +135,11 @@ func GetBillings(c echo.Context) error {
 			countArgs = append(countArgs, status)
 			countArgId++
 		}
+	}
+	if search != "" {
+		countQuery += ` AND (b.title ILIKE $` + strconv.Itoa(countArgId) + ` OR s.full_name ILIKE $` + strconv.Itoa(countArgId) + `)`
+		countArgs = append(countArgs, "%"+search+"%")
+		countArgId++
 	}
 	var total int
 	database.DB.QueryRow(countQuery, countArgs...).Scan(&total)

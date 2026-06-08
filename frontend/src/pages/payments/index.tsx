@@ -219,12 +219,10 @@ export default function BillingIndex() {
 
   const handleSearchChange = (value: string) => {
     setSearch(value)
-    if (!isStudent) setPage(1)
+    setPage(1)
   }
 
-  const displayData = isStudent && search
-    ? data.filter(item => item.title.toLowerCase().includes(search.toLowerCase()))
-    : data
+  const displayData = data
 
   const extraFilters = !isStudent ? (
     <div className="flex items-center gap-2 flex-wrap">
